@@ -509,6 +509,7 @@ textarea.styled-ta:focus{border-color:var(--cyan);}
 input.styled-input{width:100%;padding:11px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:14px;outline:none;}
 input.styled-input:focus{border-color:var(--cyan);}
 </style>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 <div class="scanline" id="scanline"></div>
@@ -891,6 +892,42 @@ input.styled-input:focus{border-color:var(--cyan);}
 <div id="glitchLayer"></div>
 <div class="hack-overlay-text" id="hackOverlayText"></div>
 
+<!-- INTRO VIDEO SCREEN -->
+<div id="introVideoScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:min(900px,100%);text-align:center;">
+    <div style="font-family:var(--font-mono);font-size:11px;color:#00ff41;letter-spacing:3px;margin-bottom:16px;opacity:0.7;">▶ GHOST_X — EINGEHENDE ÜBERTRAGUNG</div>
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:2px solid #00ff4133;box-shadow:0 0 40px rgba(0,255,65,0.2);">
+      <iframe id="introYTFrame"
+        src="https://www.youtube.com/embed/gdXKZLSx9a4?enablejsapi=1&rel=0&modestbranding=1&autoplay=1"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:16px;">
+      <div id="introVidLock" style="font-family:var(--font-mono);font-size:12px;color:#ffcc00;opacity:0.8;">🔒 Schaut das Video bis zum Ende…</div>
+      <button id="introSkipBtn" onclick="proceedToHackerIntro()" style="display:none;padding:10px 24px;background:linear-gradient(135deg,#00ff41,#00cc33);border:none;border-radius:8px;color:#000;font-family:var(--font-mono);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">WEITER →</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTRO VIDEO SCREEN -->
+<div id="outroVideoScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:min(900px,100%);text-align:center;">
+    <div style="font-family:var(--font-mono);font-size:11px;color:#00ff41;letter-spacing:3px;margin-bottom:16px;opacity:0.7;">✅ MISSION ABGESCHLOSSEN — GHOST_X BESIEGT</div>
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:2px solid #c9a80033;box-shadow:0 0 40px rgba(201,168,0,0.2);">
+      <iframe id="outroYTFrame"
+        src=""
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:16px;">
+      <div id="outroVidLock" style="font-family:var(--font-mono);font-size:12px;color:#ffcc00;opacity:0.8;">🎬 Fast geschafft…</div>
+      <button id="outroSkipBtn" onclick="proceedToRegen()" style="display:none;padding:10px 24px;background:linear-gradient(135deg,#c9a800,#a07800);border:none;border-radius:8px;color:#000;font-family:var(--font-mono);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;">🏆 URKUNDE HOLEN →</button>
+    </div>
+  </div>
+</div>
+
 <!-- HACKER INTRO -->
 <div id="hackerIntroScreen">
   <div class="hacker-scene">
@@ -1007,6 +1044,7 @@ input.styled-input:focus{border-color:var(--cyan);}
       <div class="pts-label">PUNKTE</div>
       <div class="pts-val" id="topPts">0</div>
     </div>
+    <button onclick="logOut()" style="padding:6px 12px;background:rgba(255,45,85,0.15);border:1px solid rgba(255,45,85,0.4);border-radius:6px;color:var(--red);font-family:var(--font-mono);font-size:10px;cursor:pointer;letter-spacing:1px;" title="Abmelden">⏻ EXIT</button>
   </div>
   <div id="dashboard">
     <div class="dash-hero">
@@ -1149,8 +1187,8 @@ const UNLOCK_THRESHOLD=0.75; // 75%
 // PIN CODES (case-insensitive)
 const STATION_PINS={
   1:null, // no pin for station 1
-  2:'SAFE',
-  3:'SAFE',
+  2:null,
+  3:null,
   4:'SAFE',
   5:'passwort',
   6:'finale'
@@ -1192,8 +1230,28 @@ function brgSearch(q){
 // ══════════════════════════════════════════════════
 // HACK INTRO SEQUENCE
 // ══════════════════════════════════════════════════
-window.onload=()=>{
+window.onload=async ()=>{
   document.getElementById('urkundeModal').style.display='none';
+
+  // ── Auto-restore session if team was previously logged in ──
+  const saved=localStorage.getItem('brg_team');
+  if(saved){
+    try{
+      const {name,password}=JSON.parse(saved);
+      const teams=await sbGet('teams','?team_name=eq.'+encodeURIComponent(name)+'&select=*');
+      if(Array.isArray(teams)&&teams.length>0&&teams[0].password===password){
+        currentTeam=teams[0];
+        await loadProgress();
+        // Skip intro, go straight to main app
+        document.getElementById('hackIntro').style.display='none';
+        document.getElementById('mainApp').style.display='flex';
+        renderTopBar(); renderStations(); loadScoreboard();
+        setInterval(loadScoreboard,30000);
+        return;
+      }
+    }catch(e){ localStorage.removeItem('brg_team'); }
+  }
+
   startHackIntro();
 };
 
@@ -1242,8 +1300,65 @@ function startHackIntro(){
 function showHackerIntro(){
   document.getElementById('hackIntro').style.display='none';
   document.getElementById('hackOverlayText').style.opacity='0';
+  // Show intro video first
+  const ivs=document.getElementById('introVideoScreen');
+  ivs.style.display='flex';
+  // Init YT player for intro video after short delay
+  setTimeout(initIntroYTPlayer, 800);
+}
+
+let introYTPlayer=null,outroYTPlayer=null;
+
+function initIntroYTPlayer(){
+  if(!window.YT||!window.YT.Player){setTimeout(initIntroYTPlayer,500);return;}
+  if(introYTPlayer)return;
+  introYTPlayer=new window.YT.Player('introYTFrame',{
+    events:{
+      onStateChange(e){
+        if(e.data===0){ // ended
+          document.getElementById('introVidLock').style.display='none';
+          document.getElementById('introSkipBtn').style.display='inline-block';
+        }
+      }
+    }
+  });
+}
+
+function proceedToHackerIntro(){
+  document.getElementById('introVideoScreen').style.display='none';
   document.getElementById('hackerIntroScreen').style.display='flex';
   setTimeout(runHackerTerminal,600);
+}
+
+function showOutroVideo(){
+  const ovs=document.getElementById('outroVideoScreen');
+  ovs.style.display='flex';
+  // Set src with autoplay
+  const frame=document.getElementById('outroYTFrame');
+  frame.src='https://www.youtube.com/embed/qXDw0vFpf2o?enablejsapi=1&rel=0&modestbranding=1&autoplay=1';
+  setTimeout(initOutroYTPlayer, 800);
+}
+
+function initOutroYTPlayer(){
+  if(!window.YT||!window.YT.Player){setTimeout(initOutroYTPlayer,500);return;}
+  if(outroYTPlayer)return;
+  outroYTPlayer=new window.YT.Player('outroYTFrame',{
+    events:{
+      onStateChange(e){
+        if(e.data===0){
+          document.getElementById('outroVidLock').style.display='none';
+          document.getElementById('outroSkipBtn').style.display='inline-block';
+        }
+      }
+    }
+  });
+}
+
+let regenPending=false;
+function proceedToRegen(){
+  document.getElementById('outroVideoScreen').style.display='none';
+  regenPending=false;
+  doRegenAnimation();
 }
 
 // ══════════════════════════════════════════════════
@@ -1353,6 +1468,11 @@ function startLoginScreen(){
   document.getElementById('loginScreen').style.display='flex';
 }
 
+function logOut(){
+  localStorage.removeItem('brg_team');
+  location.reload();
+}
+
 // ══════════════════════════════════════════════════
 // LOGIN PW STRENGTH
 // ══════════════════════════════════════════════════
@@ -1402,6 +1522,8 @@ async function doLogin(){
     }
     if(!team){showErr(err,'Datenbankfehler – bitte nochmal versuchen.');btn.disabled=false;btn.textContent='MISSION STARTEN';return;}
     currentTeam=team;
+    // ── Persist session so page refresh doesn't log out ──
+    localStorage.setItem('brg_team', JSON.stringify({name:team.team_name, password:pw}));
     await loadProgress();
     err.style.display='none';
     document.getElementById('loginScreen').style.display='none';
@@ -1648,6 +1770,7 @@ function openStation(id){
     <div class="modal-pts-display" id="mptsDsp">⭐ ${p.points_earned||0} / ${s.maxPts}</div>
   </div>`;
   setTimeout(()=>initStation(id),100);
+  setTimeout(()=>initYTPlayer(id),800); // init YT player after iframe renders
 }
 
 function closeStation(){
@@ -1880,28 +2003,112 @@ function playVideo(sId){
   };
 }
 
+// ══════════════════════════════════════════════════
+// YOUTUBE VIDEO PLAYER — mandatory watch before tasks
+// ══════════════════════════════════════════════════
+const STATION_YT_IDS={
+  1:'1KTCY1dDTXw',
+  2:'b7kvePq0gMM',
+  3:'S05VMTbvTEc',
+  4:'CQHPE6dHUNg',
+  5:'0jMmU_Dlx6Q',
+  6:'WGQ0SrDKZRA'
+};
+const YT_INTRO_ID='gdXKZLSx9a4';
+const YT_OUTRO_ID='qXDw0vFpf2o';
+
+// Track which station videos have been fully watched
+const videoWatched={};
+
 function vidBlock(sId){
-  return `<div class="theory-block">
-  <div class="theory-head">🎬 ERKLÄRVIDEO — GHOST_X ERKLÄRT</div>
-  <div class="vid-player">
-    <div class="vid-screen"><div id="vs${sId}" style="padding:16px;font-family:var(--font-mono);font-size:12px;color:#00ff41;line-height:1.8;min-height:100px;position:relative;">
-      <div class="vid-screen-scanline"></div>
-      <span style="color:#00ff4166;">▶ Drücke Play um das Video zu starten…</span>
-    </div></div>
-    <div class="vid-controls">
-      <button class="vid-play-btn" id="vb${sId}" onclick="playVideo(${sId})">▶</button>
-      <div class="vid-progress-track"><div class="vid-progress-fill" id="vf${sId}"></div></div>
-      <span class="vid-time" id="vt${sId}">0:00</span>
-    </div>
+  const ytId=STATION_YT_IDS[sId];
+  const watched=videoWatched[sId];
+  return `<div class="theory-block" id="vidBlock${sId}">
+  <div class="theory-head">🎬 PFLICHTAUFGABE: VIDEO ANSEHEN</div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Schaut euch das Video komplett an — erst danach werden die Aufgaben freigeschaltet!</p>
+  <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;border:1px solid var(--border);">
+    <iframe id="ytFrame${sId}"
+      src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(location.origin||'')}"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px;"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
   </div>
-  </div>`;
+  <div id="vidLock${sId}" style="margin-top:12px;padding:12px 16px;background:rgba(255,214,10,0.08);border:1px solid rgba(255,214,10,0.3);border-radius:8px;font-family:var(--font-mono);font-size:12px;color:var(--gold);display:${watched?'none':'flex'};align-items:center;gap:10px;">
+    <span style="font-size:18px;">🔒</span>
+    <span>Aufgaben gesperrt — schaut zuerst das Video vollständig an!</span>
+  </div>
+  <div id="vidUnlocked${sId}" style="margin-top:12px;padding:10px 16px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:8px;font-family:var(--font-mono);font-size:12px;color:var(--green);display:${watched?'flex':'none'};align-items:center;gap:10px;">
+    <span>✅</span><span>Video abgeschlossen — Aufgaben freigeschaltet!</span>
+  </div>
+  </div>
+  <div id="tasksWrap${sId}" style="${watched?'':'pointer-events:none;opacity:0.35;user-select:none;filter:blur(1px);'}">`;
+}
+
+function vidBlockEnd(sId){
+  return `</div>`; // closes tasksWrap
+}
+
+// Called by YouTube IFrame API when player state changes
+function onYouTubeIframeAPIReady(){
+  // Players initialized lazily when stations open
+}
+
+function initYTPlayer(sId){
+  if(!window.YT||!window.YT.Player)return;
+  const frameId='ytFrame'+sId;
+  if(document.getElementById(frameId+'_done'))return;
+  new window.YT.Player(frameId,{
+    events:{
+      onStateChange(e){
+        // YT.PlayerState.ENDED = 0
+        if(e.data===0) markVideoWatched(sId);
+      }
+    }
+  });
+  document.getElementById(frameId).setAttribute('id',frameId+'_done'); // prevent re-init
+}
+
+function markVideoWatched(sId){
+  videoWatched[sId]=true;
+  const lock=document.getElementById('vidLock'+sId);
+  const unlocked=document.getElementById('vidUnlocked'+sId);
+  const wrap=document.getElementById('tasksWrap'+sId);
+  if(lock)lock.style.display='none';
+  if(unlocked)unlocked.style.display='flex';
+  if(wrap){wrap.style.pointerEvents='';wrap.style.opacity='';wrap.style.userSelect='';wrap.style.filter='';}
+  showToast('🔓 Video abgeschlossen — Aufgaben freigeschaltet!');
 }
 
 // ══════════════════════════════════════════════════
 // BUILD STATION HTML + INIT
 // ══════════════════════════════════════════════════
 function buildStation(id){switch(id){case 1:return buildS1();case 2:return buildS2();case 3:return buildS3();case 4:return buildS4();case 5:return buildS5();case 6:return buildS6();}return '';}
+function resetStationState(id){
+  // Reset ALL per-station state so retry starts completely fresh
+  switch(id){
+    case 1:
+      s1analyzedPws=new Set();s1t1done=false;s1t2done=false;s1t3done=false;s1t4done=false;s1quizData=[];
+      break;
+    case 2:
+      s2WifiDone=false;s2QuizAnswers={};s2TipsDone=false;s2SelIdx=null;
+      break;
+    case 3:
+      s3Verdicts={};s3SelectedFlags=new Set();s3TipsDone=false;s3SelEmail=0;s3t2Done=false;s3t3Done=false;
+      break;
+    case 4:
+      s4Marks={};malTypeQuiz=[];
+      break;
+    case 5:
+      s5CurrentScenario=0;s5ScenarioDone={};s5FlagSel={};s5TipsDone=false;s5MatchCount=0;
+      break;
+    case 6:
+      s6Tab=0;s6T1Done=false;s6T2Done=false;s6T3Done=false;s6T4Done=false;
+      break;
+  }
+}
+
 function initStation(id){
+  resetStationState(id);
   switch(id){
     case 1:stPts[1]=stationProgress[1]?.points_earned||0;updateModalPts(1);setTimeout(()=>{initS1Quiz();s1quizData.forEach((_,i)=>renderAttemptDots(1,'q'+i,'s1qa'+i));renderAttemptDots(1,'t2','s1t2att');renderAttemptDots(1,'t4','s1t4att');},150);break;
     case 2:stPts[2]=stationProgress[2]?.points_earned||0;updateModalPts(2);initWifiClock();break;
@@ -2007,7 +2214,7 @@ function buildS1(){
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🧠 AUFGABE 5: Passwort-Quiz</div><div class="task-desc">5 Fragen, je 2 Versuche.</div></div><div class="task-pts-tag">5 × 10 Pts</div></div>
     <div id="s1quiz"></div>
-  </div>`;
+  </div>`+vidBlockEnd(1);
 }
 
 function initS1Quiz(){
@@ -2202,7 +2409,7 @@ function buildS2(){
     <div id="s2tipsFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 3 Maßnahmen erkannt</div>
     <div class="hint-btn-wrap"><button class="hint-toggle" onclick="toggleHint('s2h3')">💡 Tipp</button></div>
     <div class="hint-content" id="s2h3">Denk an: VPN, HTTPS, automatische WLAN-Verbindung deaktivieren, öffentliche WLANs meiden, Netzwerknamen überprüfen…</div>
-  </div>`;
+  </div>`+vidBlockEnd(2);
 }
 
 let s2SelIdx=null,s2TipsDone=false;
@@ -2217,6 +2424,8 @@ function s2Connect(){
 }
 function initWifiClock(){setInterval(()=>{const el=document.getElementById('wifiClock');if(el){const d=new Date();el.textContent=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();}},1000);}
 function s2Answer(qi,sel,correct,pts){
+  if(s2QuizAnswers[qi]!==undefined)return; // already answered this question
+  s2QuizAnswers[qi]=sel;
   document.querySelectorAll(`[id^="s2q${qi}o"]`).forEach(b=>b.disabled=true);
   const fb=document.getElementById('s2fb'+qi);
   if(sel===correct){stPts[2]+=pts;updateModalPts(2);fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='✅ Richtig! +'+pts+' Punkte!';document.getElementById('s2q'+qi+'o'+sel).style.background='rgba(0,255,136,0.1)';}
@@ -2329,7 +2538,7 @@ function buildS3(){
     <div class="attempt-indicator" id="s3t3att"></div>
     <textarea class="styled-ta" id="s3tips" rows="4" placeholder="Deine 3 Schutzmaßnahmen…" oninput="s3CheckTips(this.value)"></textarea>
     <div id="s3tipsFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 3 Tipps erkannt</div>
-  </div>`;
+  </div>`+vidBlockEnd(3);
 }
 
 let s3Verdicts={},s3SelectedFlags=new Set();
@@ -2485,7 +2694,7 @@ function buildS4(){
       <div class="feedback-box" id="s4fb${i}"></div>
     </div>`).join('')}
     </div>
-  </div>`;
+  </div>`+vidBlockEnd(4);
 }
 function s4Mark(i,asMal,isMal){
   const v=getVariant(4);const files=s4FileVariants[v];
@@ -2678,7 +2887,7 @@ function buildS5(){
       </div>`).join('')}
     </div>
     <div class="feedback-box" id="s5matchFb"></div>
-  </div>`;
+  </div>`+vidBlockEnd(5);
 }
 
 function loadSocialScenario(idx){
@@ -2781,7 +2990,7 @@ function buildS6(){
       ${['Caesar-Cipher','ASCII-Decoder','Vigenère','Abschluss-Code'].map((t,i)=>`<div class="crypto-tab ${i===0?'active':''}" id="s6tab${i}" onclick="s6ShowTab(${i})">${t}</div>`).join('')}
     </div>
     <div id="s6tabContent" style="margin-top:16px;"></div>
-  </div>`;
+  </div>`+vidBlockEnd(6);
 }
 function initCipher(){setTimeout(()=>s6ShowTab(0),100);}
 function s6ShowTab(i){
@@ -2915,7 +3124,12 @@ function s6CheckFinal(){
 // SUCCESS SCREEN + REGENERATION ANIMATION
 // ══════════════════════════════════════════════════
 function showSuccessScreen(){
+  // Show outro video first, then regen
   document.getElementById('mainApp').style.display='none';
+  showOutroVideo();
+}
+
+function doRegenAnimation(){
   const ss=document.getElementById('successScreen');
   ss.style.display='flex';
   document.getElementById('successTeamName').textContent='🏆 Team: '+currentTeam.team_name+' — '+totalPoints+' Punkte';
