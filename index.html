@@ -24,7 +24,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;}
 
-/* ── FAKE SCHOOL WEBSITE work now── */
+/* ── FAKE SCHOOL WEBSITE ── */
 #hackIntro{position:fixed;inset:0;z-index:9999;background:#f0f2f5;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;overflow:hidden;}
 .brg-topstrip{background:#003399;padding:5px 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#aac4ff;}
 .brg-header{background:linear-gradient(135deg,#003399 0%,#1a5cbf 60%,#003399 100%);padding:0;display:flex;align-items:stretch;border-bottom:4px solid #c9a800;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
@@ -1090,7 +1090,7 @@ input.styled-input:focus{border-color:var(--cyan);}
 </div>
 
 <!-- URKUNDE -->
-<div id="urkundeModal" style="display:flex;">
+<div id="urkundeModal" style="display:none;">
   <div style="width:min(700px,95vw);background:white;border-radius:4px;position:relative;box-shadow:0 0 80px rgba(0,0,0,0.8);">
     <button class="urkunde-close" onclick="document.getElementById('urkundeModal').style.display='none'">✕</button>
     <div class="urkunde-inner">
@@ -1326,8 +1326,8 @@ function initIntroYTPlayer(){
 
 function proceedToHackerIntro(){
   document.getElementById('introVideoScreen').style.display='none';
-  document.getElementById('hackerIntroScreen').style.display='flex';
-  setTimeout(runHackerTerminal,600);
+  // TTS terminal disabled — intro video replaces it
+  startLoginScreen();
 }
 
 function showOutroVideo(){
@@ -1776,6 +1776,12 @@ function openStation(id){
 function closeStation(){
   document.getElementById('stationModal').style.display='none';
   if(currentSpeech) window.speechSynthesis.cancel();
+  // Pause all station YT iframes to stop audio
+  for(let i=1;i<=6;i++){
+    const fr=document.getElementById('ytFrame'+i+'_ytdone')||document.getElementById('ytFrame'+i);
+    if(fr){try{fr.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*');}catch(e){}}
+    pauseVidTimer(i);
+  }
 }
 
 function updateModalPts(id){
@@ -2004,7 +2010,9 @@ function playVideo(sId){
 }
 
 // ══════════════════════════════════════════════════
-// YOUTUBE VIDEO PLAYER — mandatory watch before tasks
+// YOUTUBE VIDEO PLAYER — timer-based mandatory lock
+// Durations are the real video lengths in seconds.
+// Even if someone skips, the timer runs the full duration.
 // ══════════════════════════════════════════════════
 const STATION_YT_IDS={
   1:'1KTCY1dDTXw',
@@ -2014,28 +2022,33 @@ const STATION_YT_IDS={
   5:'0jMmU_Dlx6Q',
   6:'WGQ0SrDKZRA'
 };
+const VIDEO_DURATIONS={
+  intro:94, 1:58, 2:53, 3:53, 4:62, 5:52, 6:48, outro:80
+};
 const YT_INTRO_ID='gdXKZLSx9a4';
 const YT_OUTRO_ID='qXDw0vFpf2o';
 
-// Track which station videos have been fully watched
 const videoWatched={};
+const vidTimerInterval={};
 
 function vidBlock(sId){
   const ytId=STATION_YT_IDS[sId];
+  const dur=VIDEO_DURATIONS[sId]||60;
   const watched=videoWatched[sId];
+  const mm=Math.floor(dur/60), ss=String(dur%60).padStart(2,'0');
   return `<div class="theory-block" id="vidBlock${sId}">
   <div class="theory-head">🎬 PFLICHTAUFGABE: VIDEO ANSEHEN</div>
-  <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Schaut euch das Video komplett an — erst danach werden die Aufgaben freigeschaltet!</p>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Schaut euch das Video komplett an — vorspulen sperrt die Aufgaben nicht früher frei!</p>
   <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;border:1px solid var(--border);">
     <iframe id="ytFrame${sId}"
-      src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0&modestbranding=1&origin=${encodeURIComponent(location.origin||'')}"
+      src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0&modestbranding=1"
       style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px;"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen></iframe>
   </div>
-  <div id="vidLock${sId}" style="margin-top:12px;padding:12px 16px;background:rgba(255,214,10,0.08);border:1px solid rgba(255,214,10,0.3);border-radius:8px;font-family:var(--font-mono);font-size:12px;color:var(--gold);display:${watched?'none':'flex'};align-items:center;gap:10px;">
-    <span style="font-size:18px;">🔒</span>
-    <span>Aufgaben gesperrt — schaut zuerst das Video vollständig an!</span>
+  <div id="vidLock${sId}" style="margin-top:12px;padding:12px 16px;background:rgba(255,214,10,0.08);border:1px solid rgba(255,214,10,0.3);border-radius:8px;font-family:var(--font-mono);font-size:12px;color:var(--gold);display:${watched?'none':'flex'};align-items:center;justify-content:space-between;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:18px;">🔒</span><span>Aufgaben gesperrt — Video läuft noch…</span></div>
+    <div id="vidCountdown${sId}" style="font-size:16px;font-weight:700;min-width:48px;text-align:right;">${mm}:${ss}</div>
   </div>
   <div id="vidUnlocked${sId}" style="margin-top:12px;padding:10px 16px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:8px;font-family:var(--font-mono);font-size:12px;color:var(--green);display:${watched?'flex':'none'};align-items:center;gap:10px;">
     <span>✅</span><span>Video abgeschlossen — Aufgaben freigeschaltet!</span>
@@ -2045,31 +2058,66 @@ function vidBlock(sId){
 }
 
 function vidBlockEnd(sId){
-  return `</div>`; // closes tasksWrap
+  return `</div>`;
 }
 
-// Called by YouTube IFrame API when player state changes
-function onYouTubeIframeAPIReady(){
-  // Players initialized lazily when stations open
-}
+function onYouTubeIframeAPIReady(){}
 
 function initYTPlayer(sId){
   if(!window.YT||!window.YT.Player)return;
   const frameId='ytFrame'+sId;
-  if(document.getElementById(frameId+'_done'))return;
-  new window.YT.Player(frameId,{
+  if(document.getElementById(frameId+'_ytdone'))return;
+  const iframe=document.getElementById(frameId);
+  if(!iframe)return;
+  iframe.id=frameId+'_ytdone';
+  new window.YT.Player(frameId+'_ytdone',{
     events:{
       onStateChange(e){
-        // YT.PlayerState.ENDED = 0
-        if(e.data===0) markVideoWatched(sId);
+        // 1 = playing: start timer when video actually plays
+        if(e.data===1) startVidTimer(sId);
+        // 2 = paused: pause timer
+        if(e.data===2) pauseVidTimer(sId);
       }
     }
   });
-  document.getElementById(frameId).setAttribute('id',frameId+'_done'); // prevent re-init
+}
+
+function startVidTimer(sId){
+  if(videoWatched[sId])return;
+  if(vidTimerInterval[sId+'_running'])return; // already running
+  vidTimerInterval[sId+'_running']=true;
+  const dur=VIDEO_DURATIONS[sId]||60;
+  if(!vidTimerInterval[sId+'_remaining']){
+    vidTimerInterval[sId+'_remaining']=dur;
+  }
+  vidTimerInterval[sId]=setInterval(()=>{
+    vidTimerInterval[sId+'_remaining']--;
+    const rem=vidTimerInterval[sId+'_remaining'];
+    const el=document.getElementById('vidCountdown'+sId);
+    if(el){
+      const mm=Math.floor(rem/60), ss=String(rem%60).padStart(2,'0');
+      el.textContent=mm+':'+ss;
+    }
+    if(rem<=0){
+      clearInterval(vidTimerInterval[sId]);
+      markVideoWatched(sId);
+    }
+  },1000);
+}
+
+function pauseVidTimer(sId){
+  if(vidTimerInterval[sId]){
+    clearInterval(vidTimerInterval[sId]);
+    vidTimerInterval[sId+'_running']=false;
+  }
 }
 
 function markVideoWatched(sId){
   videoWatched[sId]=true;
+  pauseVidTimer(sId);
+  // Stop all iframes audio when leaving (mute iframe)
+  const frame=document.getElementById('ytFrame'+sId)||document.getElementById('ytFrame'+sId+'_ytdone');
+  if(frame){try{frame.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*');}catch(e){}}
   const lock=document.getElementById('vidLock'+sId);
   const unlocked=document.getElementById('vidUnlocked'+sId);
   const wrap=document.getElementById('tasksWrap'+sId);
@@ -2090,16 +2138,16 @@ function resetStationState(id){
       s1analyzedPws=new Set();s1t1done=false;s1t2done=false;s1t3done=false;s1t4done=false;s1quizData=[];
       break;
     case 2:
-      s2WifiDone=false;s2QuizAnswers={};s2TipsDone=false;s2SelIdx=null;
+      s2WifiDone=false;s2QuizAnswers={};s2TipsDone=false;s2SelIdx=null;s2UrlAnswers={};
       break;
     case 3:
-      s3Verdicts={};s3SelectedFlags=new Set();s3TipsDone=false;s3SelEmail=0;s3t2Done=false;s3t3Done=false;
+      s3Verdicts={};s3SelectedFlags=new Set();s3TipsDone=false;s3SelEmail=0;s3t2Done=false;s3t3Done=false;s3UrlPairs={};
       break;
     case 4:
       s4Marks={};malTypeQuiz=[];
       break;
     case 5:
-      s5CurrentScenario=0;s5ScenarioDone={};s5FlagSel={};s5TipsDone=false;s5MatchCount=0;
+      s5CurrentScenario=0;s5ScenarioDone={};s5FlagSel={};s5TipsDone=false;s5MatchCount=0;s5QuickAnswers={};
       break;
     case 6:
       s6Tab=0;s6T1Done=false;s6T2Done=false;s6T3Done=false;s6T4Done=false;
@@ -2409,6 +2457,25 @@ function buildS2(){
     <div id="s2tipsFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 3 Maßnahmen erkannt</div>
     <div class="hint-btn-wrap"><button class="hint-toggle" onclick="toggleHint('s2h3')">💡 Tipp</button></div>
     <div class="hint-content" id="s2h3">Denk an: VPN, HTTPS, automatische WLAN-Verbindung deaktivieren, öffentliche WLANs meiden, Netzwerknamen überprüfen…</div>
+  </div>
+  <div class="task-block">
+    <div class="task-header"><div><div class="task-title">🔗 AUFGABE 4: URL-Sicherheits-Check</div><div class="task-desc">Bewertet jede URL: Sicher oder Gefährlich? Klickt auf die richtige Einschätzung! Je URL 5 Punkte.</div></div><div class="task-pts-tag">8 × 5 Pts = 40 Pts</div></div>
+    <div id="s2urlArea">${[
+      {url:'https://www.sparkasse.at/login',safe:true},
+      {url:'http://sparkasse-login.ru/konto',safe:false},
+      {url:'https://orf.at/nachrichten',safe:true},
+      {url:'http://orf-news.tk/breaking',safe:false},
+      {url:'https://www.brg-innsbruck.at',safe:true},
+      {url:'http://brg-innsbr0ck-login.xyz',safe:false},
+      {url:'https://mail.google.com',safe:true},
+      {url:'http://google-mail-verify.net/auth',safe:false},
+    ].map((u,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;" id="s2url${i}">
+      <div style="flex:1;font-family:var(--font-mono);font-size:12px;color:var(--cyan);background:var(--bg2);padding:8px 12px;border-radius:6px;border:1px solid var(--border);word-break:break-all;">${u.url}</div>
+      <button onclick="s2CheckUrl(${i},true,${u.safe})" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(0,255,136,0.4);background:transparent;color:var(--green);font-size:12px;cursor:pointer;">✅ Sicher</button>
+      <button onclick="s2CheckUrl(${i},false,${u.safe})" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(255,45,85,0.4);background:transparent;color:var(--red);font-size:12px;cursor:pointer;">⛔ Gefährlich</button>
+    </div>`).join('')}
+    </div>
+    <div id="s2urlFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 8 URLs bewertet</div>
   </div>`+vidBlockEnd(2);
 }
 
@@ -2438,6 +2505,24 @@ function s2CheckTips(v){
   const cnt=Math.min(3,Math.floor(found/1.5));
   document.getElementById('s2tipsFb').textContent=cnt+' / 3 Maßnahmen erkannt';
   if(cnt>=3&&!s2TipsDone){s2TipsDone=true;stPts[2]+=60;updateModalPts(2);showToast('Aufgabe 3: +60 Punkte! ⭐');}
+}
+let s2UrlAnswers={};
+function s2CheckUrl(i,answeredSafe,isSafe){
+  if(s2UrlAnswers[i]!==undefined)return;
+  s2UrlAnswers[i]=answeredSafe;
+  const row=document.getElementById('s2url'+i);
+  const correct=answeredSafe===isSafe;
+  if(row){
+    row.style.background=correct?'rgba(0,255,136,0.06)':'rgba(255,45,85,0.06)';
+    row.querySelectorAll('button').forEach(b=>b.disabled=true);
+    const fb=document.createElement('div');
+    fb.style.cssText='font-family:var(--font-mono);font-size:11px;width:100%;margin-top:4px;color:'+(correct?'var(--green)':'var(--red)');
+    fb.textContent=correct?'✅ Richtig! +5 Pts':'❌ Falsch — '+(isSafe?'Diese URL ist sicher (HTTPS, echte Domain)':'Diese URL ist gefährlich (HTTP, verdächtige Domain)');
+    row.appendChild(fb);
+    if(correct){stPts[2]+=5;updateModalPts(2);}
+  }
+  const done=Object.keys(s2UrlAnswers).length;
+  document.getElementById('s2urlFb').textContent=done+' / 8 URLs bewertet';
 }
 
 // ════════════════════════════
@@ -2534,10 +2619,30 @@ function buildS3(){
     <div class="feedback-box" id="s3t2fb"></div>
   </div>
   <div class="task-block">
-    <div class="task-header"><div><div class="task-title">✍️ AUFGABE 3: Schutztipps</div><div class="task-desc">Nenne 3 Wege, wie du dich vor Phishing schützen kannst.</div></div><div class="task-pts-tag">+20 Pts</div></div>
+    <div class="task-header"><div><div class="task-title">✍️ AUFGABE 3: Schutztipps</div><div class="task-desc">Nenne 3 Wege, wie du dich vor Phishing schützen kannst (+40 Pts).</div></div><div class="task-pts-tag">+40 Pts</div></div>
     <div class="attempt-indicator" id="s3t3att"></div>
     <textarea class="styled-ta" id="s3tips" rows="4" placeholder="Deine 3 Schutzmaßnahmen…" oninput="s3CheckTips(this.value)"></textarea>
     <div id="s3tipsFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 3 Tipps erkannt</div>
+  </div>
+  <div class="task-block">
+    <div class="task-header"><div><div class="task-title">🔎 AUFGABE 4: Phishing-URL Detektiv</div><div class="task-desc">Analysiere die URL-Paare. Welche ist die ECHTE, welche die GEFÄLSCHTE Website? Je Paar 12 Pts.</div></div><div class="task-pts-tag">5 × 12 Pts = 60 Pts</div></div>
+    <div id="s3urlPairs">
+    ${[
+      {real:'www.paypal.com/signin',fake:'www.paypa1-secure.net/signin',hint:'Buchstabe "l" wurde durch "1" ersetzt'},
+      {real:'www.amazon.de/mein-konto',fake:'www.amazon-konto-verify.tk/mein-konto',hint:'Echte Amazon-Domain hat kein "-konto-verify"'},
+      {real:'www.sparkasse.at/banking',fake:'www.sparkasse-sicher-at.ru/banking',hint:'.ru ist eine russische Domain — keine österreichische Bank!'},
+      {real:'mail.google.com/mail',fake:'www.google-mail-login.xyz/mail',hint:'Googles Mail-Dienst ist immer mail.google.com'},
+      {real:'www.bmvit.gv.at',fake:'www.bmvit-formular.tk/antrag',hint:'.gv.at ist die offizielle Endung österreichischer Behörden'},
+    ].map((p,i)=>`<div style="margin-bottom:16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;" id="s3up${i}">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">URL-Paar ${i+1}: Welche ist die ECHTE Website?</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button onclick="s3UrlPick(${i},'A','${p.real}','${p.fake}','${p.hint}')" style="flex:1;min-width:200px;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--cyan);font-family:var(--font-mono);font-size:11px;cursor:pointer;text-align:left;word-break:break-all;">A: ${p.real}</button>
+        <button onclick="s3UrlPick(${i},'B','${p.real}','${p.fake}','${p.hint}')" style="flex:1;min-width:200px;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--red);font-family:var(--font-mono);font-size:11px;cursor:pointer;text-align:left;word-break:break-all;">B: ${p.fake}</button>
+      </div>
+      <div class="feedback-box" id="s3upfb${i}"></div>
+    </div>`).join('')}
+    </div>
+    <div id="s3urlScore" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:4px;">0 / 5 Paare gelöst</div>
   </div>`+vidBlockEnd(3);
 }
 
@@ -2588,7 +2693,27 @@ function s3CheckTips(v){
   const kw=['link','absender','domain','zwei-faktor','2fa','phishing','spam','bank','passwort','überprüf','url','https','official'];
   const cnt=Math.min(3,kw.filter(k=>v.toLowerCase().includes(k)).length);
   document.getElementById('s3tipsFb').textContent=cnt+' / 3 Tipps erkannt';
-  if(cnt>=3&&!s3TipsDone){s3TipsDone=true;stPts[3]+=20;updateModalPts(3);showToast('Aufgabe 3: +20 Punkte!');}
+  if(cnt>=3&&!s3TipsDone){s3TipsDone=true;stPts[3]+=40;updateModalPts(3);showToast('Aufgabe 3: +40 Punkte!');}
+}
+let s3UrlPairs={};
+function s3UrlPick(i,choice,real,fake,hint){
+  if(s3UrlPairs[i]!==undefined)return;
+  s3UrlPairs[i]=choice;
+  const correct=choice==='A'; // A is always the real one
+  const fb=document.getElementById('s3upfb'+i);
+  const box=document.getElementById('s3up'+i);
+  if(box)box.querySelectorAll('button').forEach(b=>b.disabled=true);
+  if(fb){
+    fb.className='feedback-box '+(correct?'fb-correct':'fb-wrong');
+    fb.style.display='block';
+    fb.innerHTML=correct
+      ?`✅ Richtig! "${real}" ist die echte URL. +12 Punkte! Tipp: ${hint}`
+      :`❌ Falsch! "${fake}" ist die Phishing-URL. ${hint}`;
+  }
+  if(correct){stPts[3]+=12;updateModalPts(3);}
+  const done=Object.keys(s3UrlPairs).length;
+  const el=document.getElementById('s3urlScore');
+  if(el)el.textContent=done+' / 5 Paare gelöst';
 }
 
 // ════════════════════════════
@@ -2872,7 +2997,29 @@ function buildS5(){
     <div id="s5tipsFb" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:8px;">0 / 3 Regeln erkannt</div>
   </div>
   <div class="task-block">
-    <div class="task-header"><div><div class="task-title">🎯 AUFGABE 4: Social Engineering Typen</div><div class="task-desc">Ordne die Angriffstechniken den richtigen Beschreibungen zu (+20 Pts).</div></div><div class="task-pts-tag">+20 Pts</div></div>
+    <div class="task-header"><div><div class="task-title">🎯 AUFGABE 3: Angriff oder Schutz? Schnell-Entscheidung</div><div class="task-desc">Jede Aussage: Ist das eine Angriffstechnik oder eine Schutzmaßnahme? 8 Fragen × 5 Punkte.</div></div><div class="task-pts-tag">8 × 5 Pts = 40 Pts</div></div>
+    <div id="s5quickArea">${[
+      {txt:'Ein Unbekannter schickt dir einen USB-Stick als "Gratis-Geschenk"',attack:true},
+      {txt:'Du rufst direkt bei der echten Firmennummer zurück um eine Anfrage zu verifizieren',attack:false},
+      {txt:'"Sie müssen SOFORT handeln, sonst wird Ihr Konto gelöscht!"',attack:true},
+      {txt:'Du fragst nach dem vollständigen Namen und der Mitarbeiternummer des Anrufers',attack:false},
+      {txt:'Jemand behauptet, dein Chef zu sein und braucht dein Passwort per Chat',attack:true},
+      {txt:'Zwei-Faktor-Authentifizierung für alle Accounts aktivieren',attack:false},
+      {txt:'"Ich bin vom IT-Support — ich brauche kurz Fernzugriff auf deinen Computer"',attack:true},
+      {txt:'Passwörter niemals telefonisch oder per Chat weitergeben',attack:false},
+    ].map((q,i)=>`<div style="margin-bottom:10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;" id="s5q${i}">
+      <div style="font-size:13px;margin-bottom:8px;">"${q.txt}"</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="s5QuickAns(${i},true,${q.attack})" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,45,85,0.4);background:transparent;color:var(--red);font-size:12px;cursor:pointer;">⚔️ Angriff</button>
+        <button onclick="s5QuickAns(${i},false,${q.attack})" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(0,255,136,0.4);background:transparent;color:var(--green);font-size:12px;cursor:pointer;">🛡️ Schutz</button>
+      </div>
+      <div class="feedback-box" id="s5qfb${i}"></div>
+    </div>`).join('')}
+    </div>
+    <div id="s5quickScore" style="font-family:var(--font-mono);font-size:11px;color:var(--text2);">0 / 8 beantwortet</div>
+  </div>
+  <div class="task-block">
+    <div class="task-header"><div><div class="task-title">🧩 AUFGABE 4: Angriffstechniken zuordnen</div><div class="task-desc">Ordne die Angriffstechniken den richtigen Beschreibungen zu. Je Treffer 5 Punkte.</div></div><div class="task-pts-tag">4 × 5 Pts = 20 Pts</div></div>
     <div id="s5matchArea">
       ${[
         {tech:'Pretexting',desc:'Der Angreifer erfindet eine glaubwürdige Geschichte / Identität'},
@@ -2942,13 +3089,32 @@ function s5CheckTips(v){
   const kw=['passwort','verifizier','überprüf','zeitdruck','eile','identität','rückruf','lehrer','admin','niemals','nein','vorsicht'];
   const cnt=Math.min(3,kw.filter(k=>v.toLowerCase().includes(k)).length);
   document.getElementById('s5tipsFb').textContent=cnt+' / 3 Regeln erkannt';
-  if(cnt>=3&&!s5TipsDone){s5TipsDone=true;stPts[5]+=40;updateModalPts(5);showToast('Aufgabe 3: +40 Punkte!');}
+  if(cnt>=3&&!s5TipsDone){s5TipsDone=true;stPts[5]+=40;updateModalPts(5);showToast('Aufgabe: +40 Punkte!');}
+}
+let s5QuickAnswers={};
+function s5QuickAns(i,answeredAttack,isAttack){
+  if(s5QuickAnswers[i]!==undefined)return;
+  s5QuickAnswers[i]=answeredAttack;
+  const correct=answeredAttack===isAttack;
+  const box=document.getElementById('s5q'+i);
+  const fb=document.getElementById('s5qfb'+i);
+  if(box)box.querySelectorAll('button').forEach(b=>b.disabled=true);
+  if(fb){
+    fb.className='feedback-box '+(correct?'fb-correct':'fb-wrong');
+    fb.style.display='block';
+    fb.innerHTML=correct?'✅ Richtig! +5 Punkte!':'❌ Falsch! Das ist '+(isAttack?'eine Angriffstechnik ⚔️':'eine Schutzmaßnahme 🛡️');
+  }
+  if(correct){stPts[5]+=5;updateModalPts(5);}
+  const done=Object.keys(s5QuickAnswers).length;
+  const sc=document.getElementById('s5quickScore');
+  if(sc)sc.textContent=done+' / 8 beantwortet';
 }
 let s5MatchCount=0;
 function s5MatchClick(i,btn){
   btn.textContent='✅';btn.disabled=true;btn.style.color='var(--green)';
+  stPts[5]+=5;updateModalPts(5);
   s5MatchCount++;
-  if(s5MatchCount===4){stPts[5]+=20;updateModalPts(5);const fb=document.getElementById('s5matchFb');if(fb){fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='✅ Alle Angriffstechniken richtig zugeordnet! +20 Punkte!';}}
+  if(s5MatchCount===4){const fb=document.getElementById('s5matchFb');if(fb){fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='🎯 Alle 4 Techniken erkannt! +20 Punkte insgesamt!';}}
 }
 
 // ════════════════════════════
