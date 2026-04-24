@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRG Innsbruck – Schulportal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e1a;--bg2:#0d1220;--surface:#111827;--surface2:#1a2235;
+  --border:#1e2d45;--accent:#00d4ff;--accent2:#ff3a6e;--accent3:#39ff8f;
+  --accent4:#ffd93d;--text:#e8edf5;--text2:#8ba0bc;--danger:#ff3a6e;
+  --warn:#ffd93d;--ok:#39ff8f;
+  --font-head:'Rajdhani',sans-serif;--font-body:'Source Serif 4',serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+
+/* HACK INTRO */
+#hackIntro{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;overflow:hidden;}
+.school-header-fake{background:#1a3a6e;padding:10px 28px;display:flex;align-items:center;gap:14px;border-bottom:3px solid #c8a400;}
+.school-logo-fake{width:48px;height:48px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:#1a3a6e;font-family:var(--font-head);}
+.school-title-fake h1{color:#fff;font-size:1.2rem;font-family:var(--font-head);letter-spacing:1px;}
+.school-title-fake p{color:#aac;font-size:.75rem;}
+.fake-nav{background:#f4f6f9;border-bottom:1px solid #dde2ea;padding:0 28px;display:flex;gap:0;}
+.fake-nav-item{padding:9px 16px;font-size:.83rem;color:#3a4a5c;cursor:default;border-bottom:3px solid transparent;font-family:var(--font-head);font-weight:600;letter-spacing:.5px;}
+.fake-nav-item.active{color:#1a3a6e;border-bottom-color:#1a3a6e;}
+.fake-content{flex:1;background:#f8f9fb;padding:24px;display:grid;grid-template-columns:1fr 280px;gap:18px;overflow:hidden;}
+.fake-main{background:#fff;border-radius:8px;padding:22px;border:1px solid #e2e8f0;font-family:Arial,sans-serif;overflow:hidden;position:relative;}
+.fake-sidebar{display:flex;flex-direction:column;gap:13px;}
+.fake-widget{background:#fff;border-radius:8px;padding:16px;border:1px solid #e2e8f0;font-family:Arial,sans-serif;}
+#glitchOverlay{position:fixed;inset:0;z-index:10000;pointer-events:none;opacity:0;mix-blend-mode:screen;}
+.hack-text-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10001;font-family:var(--font-mono);color:#00ff41;text-align:center;text-shadow:0 0 20px #00ff41;font-size:1.3rem;opacity:0;pointer-events:none;white-space:nowrap;}
+.scanlines-overlay{position:fixed;inset:0;pointer-events:none;z-index:9990;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);opacity:0;transition:opacity .5s;}
+
+/* HACKER VIDEO */
+#hackerVideo{display:none;position:fixed;inset:0;z-index:9998;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.hacker-terminal{width:min(680px,95vw);background:#0a0a0a;border:2px solid #00ff41;border-radius:4px;overflow:hidden;box-shadow:0 0 60px rgba(0,255,65,.4);}
+.terminal-bar{background:#1a1a1a;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #00ff4133;}
+.terminal-dot{width:11px;height:11px;border-radius:50%;}
+.terminal-screen{padding:22px;font-family:var(--font-mono);color:#00ff41;font-size:.88rem;line-height:1.75;min-height:260px;position:relative;overflow-y:auto;max-height:320px;}
+.terminal-line{opacity:0;animation:fadeInLine .3s forwards;}
+@keyframes fadeInLine{to{opacity:1;}}
+.vscanline{position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;}
+.hacker-avatar{width:100px;height:100px;border-radius:50%;background:#111;border:3px solid #00ff41;display:flex;align-items:center;justify-content:center;font-size:2.8rem;box-shadow:0 0 30px rgba(0,255,65,.5);animation:hackerPulse 2s ease-in-out infinite;margin:0 auto 8px;}
+@keyframes hackerPulse{0%,100%{box-shadow:0 0 30px rgba(0,255,65,.5);}50%{box-shadow:0 0 50px rgba(0,255,65,.8);}}
+.speaking-indicator{display:flex;gap:3px;align-items:center;justify-content:center;height:18px;}
+.speaking-bar{width:3px;background:#00ff41;border-radius:2px;animation:speakBar .4s ease-in-out infinite alternate;}
+.speaking-bar:nth-child(1){height:5px;animation-delay:0s;}.speaking-bar:nth-child(2){height:13px;animation-delay:.1s;}.speaking-bar:nth-child(3){height:9px;animation-delay:.2s;}.speaking-bar:nth-child(4){height:17px;animation-delay:.05s;}.speaking-bar:nth-child(5){height:7px;animation-delay:.15s;}
+@keyframes speakBar{from{transform:scaleY(.3);}to{transform:scaleY(1);}}
+.skip-btn{padding:9px 26px;background:transparent;border:1px solid #333;color:#555;border-radius:4px;cursor:pointer;font-family:var(--font-mono);font-size:.78rem;transition:.3s;}
+.skip-btn:hover{border-color:#00ff41;color:#00ff41;}
+
+/* LOGIN */
+#loginScreen{display:flex;position:fixed;inset:0;z-index:9997;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.login-glow{position:absolute;top:30%;left:50%;width:500px;height:500px;background:radial-gradient(circle,rgba(0,212,255,.05) 0%,transparent 70%);transform:translate(-50%,-50%);pointer-events:none;}
+.login-card{width:min(460px,100%);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;position:relative;box-shadow:0 0 60px rgba(0,212,255,.08);}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));border-radius:16px 16px 0 0;}
+.school-badge{display:flex;align-items:center;gap:12px;margin-bottom:26px;}
+.badge-icon{width:46px;height:46px;background:linear-gradient(135deg,#1a3a6e,#2a5ab0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 14px rgba(26,58,110,.5);}
+.badge-text h2{font-family:var(--font-head);font-size:1.1rem;letter-spacing:1px;color:var(--text);}
+.badge-text p{font-size:.76rem;color:var(--text2);}
+.login-title{font-family:var(--font-head);font-size:1.5rem;font-weight:700;letter-spacing:2px;margin-bottom:5px;background:linear-gradient(135deg,var(--accent),#7eb8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-subtitle{color:var(--text2);font-size:.83rem;margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-family:var(--font-mono);font-size:.72rem;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.form-input{width:100%;padding:11px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:.88rem;transition:.3s;outline:none;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
+.pw-strength-bar{height:4px;border-radius:2px;background:var(--border);margin-top:7px;overflow:hidden;}
+.pw-strength-fill{height:100%;width:0%;transition:width .4s,background .4s;border-radius:2px;}
+.pw-strength-text{font-size:.72rem;margin-top:4px;font-family:var(--font-mono);}
+.pw-warning{background:rgba(255,58,110,.1);border:1px solid rgba(255,58,110,.4);border-radius:8px;padding:11px;margin-top:9px;font-size:.78rem;color:var(--danger);display:none;animation:fadeIn .3s;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#0099bb);border:none;border-radius:8px;color:#000;font-family:var(--font-head);font-size:1.05rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.3s;margin-top:6px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,255,.4);}
+.login-error{background:rgba(255,58,110,.1);border:1px solid rgba(255,58,110,.4);border-radius:8px;padding:11px;margin-top:12px;font-size:.82rem;color:var(--danger);text-align:center;display:none;}
+
+/* MAIN APP */
+#mainApp{display:none;flex-direction:column;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0d1a35,#0a1628);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;gap:14px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5);}
+.topbar-emblem{width:36px;height:36px;background:linear-gradient(135deg,#1a3a6e,#2a5ab0);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;font-family:var(--font-head);}
+.topbar-name{font-family:var(--font-head);font-size:.95rem;letter-spacing:2px;color:var(--text);font-weight:600;}
+.topbar-name span{color:var(--accent);}
+.topbar-hack-badge{margin-left:10px;padding:3px 9px;background:rgba(255,58,110,.15);border:1px solid rgba(255,58,110,.5);border-radius:20px;font-family:var(--font-mono);font-size:.62rem;color:var(--danger);letter-spacing:1px;text-transform:uppercase;animation:pulseBadge 2s ease-in-out infinite;}
+@keyframes pulseBadge{0%,100%{opacity:1;}50%{opacity:.5;}}
+.topbar-spacer{flex:1;}
+.topbar-team{display:flex;align-items:center;gap:9px;padding:5px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
+.team-avatar{width:26px;height:26px;border-radius:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#000;font-family:var(--font-head);}
+.team-info-top p:first-child{font-family:var(--font-head);font-size:.82rem;letter-spacing:.5px;}
+.team-info-top p:last-child{font-size:.68rem;color:var(--accent);font-family:var(--font-mono);}
+.topbar-pts{display:flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(57,255,143,.08);border:1px solid rgba(57,255,143,.2);border-radius:8px;}
+.topbar-pts span:first-child{font-family:var(--font-mono);font-size:.68rem;color:var(--text2);}
+.topbar-pts span:last-child{font-family:var(--font-head);font-size:1.05rem;color:var(--accent3);font-weight:700;}
+
+/* DASHBOARD */
+#dashboard{flex:1;padding:26px 22px;max-width:1280px;margin:0 auto;width:100%;}
+.dash-hero{background:linear-gradient(135deg,rgba(255,58,110,.08),rgba(0,212,255,.04));border:1px solid rgba(255,58,110,.2);border-radius:14px;padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden;}
+.dash-hero::before{content:'⚠ SYSTEM KOMPROMITTIERT';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:.65rem;color:rgba(255,58,110,.18);letter-spacing:3px;writing-mode:vertical-rl;}
+.dash-hero h1{font-family:var(--font-head);font-size:1.8rem;font-weight:700;letter-spacing:2px;color:var(--danger);margin-bottom:5px;}
+.dash-hero p{color:var(--text2);font-size:.87rem;line-height:1.6;max-width:580px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:18px;transition:.3s;}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.stat-label{font-family:var(--font-mono);font-size:.68rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+.stat-value{font-family:var(--font-head);font-size:1.9rem;font-weight:700;}
+.section-title{font-family:var(--font-head);font-size:1.1rem;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.stations-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.station-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:18px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;}
+.station-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.3);}
+.station-card.completed{border-color:rgba(57,255,143,.35);}
+.station-card.in-progress{border-color:rgba(255,217,61,.35);}
+.station-num{font-family:var(--font-mono);font-size:.68rem;color:var(--text2);letter-spacing:2px;margin-bottom:7px;}
+.station-icon{font-size:1.9rem;margin-bottom:9px;}
+.station-name{font-family:var(--font-head);font-size:1rem;font-weight:600;letter-spacing:.5px;margin-bottom:5px;}
+.station-desc{font-size:.76rem;color:var(--text2);line-height:1.5;margin-bottom:12px;}
+.station-meta{display:flex;align-items:center;justify-content:space-between;}
+.station-pts{font-family:var(--font-mono);font-size:.72rem;color:var(--accent4);}
+.station-status{padding:3px 9px;border-radius:20px;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.5px;font-weight:700;}
+.status-open{background:rgba(139,160,188,.12);color:var(--text2);}
+.status-progress{background:rgba(255,217,61,.12);color:var(--warn);}
+.status-done{background:rgba(57,255,143,.12);color:var(--accent3);}
+.station-progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:10px;}
+.station-progress-fill{height:100%;border-radius:2px;transition:width .5s;}
+.scoreboard-section{margin-top:22px;}
+.scoreboard-table{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;border-collapse:collapse;}
+.scoreboard-table th{background:var(--surface2);padding:11px 15px;font-family:var(--font-mono);font-size:.7rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border);}
+.scoreboard-table td{padding:11px 15px;border-bottom:1px solid rgba(30,45,69,.4);font-size:.84rem;}
+.scoreboard-table tr:last-child td{border-bottom:none;}
+.scoreboard-table tr.my-team td{background:rgba(0,212,255,.04);}
+.rank-badge{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:.85rem;font-weight:700;}
+.rank-1{background:linear-gradient(135deg,#ffd93d,#ff9500);color:#000;}.rank-2{background:linear-gradient(135deg,#c0c0c0,#909090);color:#000;}.rank-3{background:linear-gradient(135deg,#cd7f32,#8b4500);color:#fff;}.rank-other{background:var(--surface2);color:var(--text2);}
+
+/* MODAL */
+#stationModal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto;backdrop-filter:blur(4px);}
+.modal-content{width:min(860px,100%);background:var(--surface);border:1px solid var(--border);border-radius:14px;margin:auto;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,.5);}
+.modal-header{padding:18px 26px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);}
+.modal-header-icon{font-size:1.9rem;}
+.modal-header-info h2{font-family:var(--font-head);font-size:1.3rem;letter-spacing:1px;}
+.modal-header-info p{font-size:.78rem;color:var(--text2);}
+.modal-close{margin-left:auto;width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--text);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.modal-close:hover{background:rgba(255,58,110,.2);border-color:var(--danger);color:var(--danger);}
+.modal-body{padding:26px;}
+.modal-footer{padding:14px 26px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.btn-save{padding:9px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-mono);font-size:.78rem;cursor:pointer;transition:.3s;}
+.btn-save:hover{border-color:var(--accent);color:var(--accent);}
+.btn-complete{padding:9px 20px;background:linear-gradient(135deg,var(--accent3),#00bb60);border:none;border-radius:7px;color:#000;font-family:var(--font-head);font-size:.88rem;font-weight:700;cursor:pointer;transition:.3s;}
+.btn-complete:hover{box-shadow:0 4px 14px rgba(57,255,143,.3);}
+.modal-footer-pts{margin-left:auto;font-family:var(--font-mono);font-size:.83rem;color:var(--accent3);}
+.theory-block{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:18px;margin-bottom:20px;}
+.theory-header{display:flex;align-items:center;gap:9px;font-family:var(--font-head);font-size:.95rem;letter-spacing:1px;color:var(--accent);margin-bottom:11px;}
+.task-area{margin-top:18px;}
+.task-title{font-family:var(--font-head);font-size:1.05rem;letter-spacing:1px;margin-bottom:14px;color:var(--accent4);display:flex;align-items:center;gap:7px;}
+
+/* AI VIDEO */
+.ai-video-player{background:#000;border-radius:9px;overflow:hidden;margin-bottom:14px;border:1px solid #333;}
+.video-screen{padding:18px;min-height:140px;font-family:var(--font-mono);font-size:.8rem;color:#00ff41;line-height:1.7;position:relative;}
+.vscanline{position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;}
+.video-controls{background:#111;padding:7px 12px;display:flex;align-items:center;gap:9px;border-top:1px solid #222;}
+.vid-btn{width:26px;height:26px;border-radius:50%;background:#00ff41;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#000;font-weight:900;transition:.2s;}
+.vid-btn:hover{transform:scale(1.1);}
+.vid-progress{flex:1;height:4px;background:#333;border-radius:2px;position:relative;cursor:pointer;}
+.vid-progress-fill{height:100%;background:#00ff41;border-radius:2px;width:0%;transition:width .1s;}
+.vid-time{font-family:var(--font-mono);font-size:.68rem;color:#555;}
+.hint-btn{padding:5px 14px;background:transparent;border:1px solid rgba(255,217,61,.35);border-radius:5px;color:var(--warn);font-family:var(--font-mono);font-size:.73rem;cursor:pointer;transition:.3s;}
+.hint-btn:hover{background:rgba(255,217,61,.08);}
+.hint-box{background:rgba(255,217,61,.05);border:1px solid rgba(255,217,61,.28);border-radius:7px;padding:11px;margin-top:9px;font-size:.8rem;color:var(--warn);display:none;}
+.submit-btn{padding:11px 26px;background:linear-gradient(135deg,var(--accent3),#00bb60);border:none;border-radius:7px;color:#000;font-family:var(--font-head);font-size:.95rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:.3s;margin-top:14px;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(57,255,143,.4);}
+.answer-feedback{border-radius:7px;padding:11px;margin-top:11px;font-size:.83rem;display:none;}
+.feedback-correct{background:rgba(57,255,143,.09);border:1px solid rgba(57,255,143,.28);color:var(--accent3);}
+.feedback-wrong{background:rgba(255,58,110,.09);border:1px solid rgba(255,58,110,.28);color:var(--danger);}
+.mt-16{margin-top:16px;}
+
+/* ADMIN */
+#adminPortal{display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;}
+.admin-bar{background:#0d1220;border-bottom:1px solid var(--border);padding:13px 22px;display:flex;align-items:center;gap:14px;}
+.admin-bar h1{font-family:var(--font-head);font-size:1.15rem;letter-spacing:2px;color:var(--danger);}
+
+/* STATION SPECIFICS */
+.pw-cracker{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:9px;padding:18px;font-family:var(--font-mono);}
+.pw-meter-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.pw-meter-label{color:#555;font-size:.72rem;width:120px;}
+.pw-meter-bar{flex:1;height:7px;background:#1a1a1a;border-radius:4px;overflow:hidden;}
+.pw-meter-fill{height:100%;border-radius:4px;transition:width .4s;}
+.crack-time-display{background:#111;border:1px solid #222;border-radius:7px;padding:12px;text-align:center;margin-top:12px;}
+.crack-time-value{font-size:1.35rem;color:#ff3a6e;margin-bottom:3px;}
+.crack-time-label{font-size:.68rem;color:#444;}
+.pw-challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.pw-option{background:#0d0d0d;border:2px solid #222;border-radius:7px;padding:12px;cursor:pointer;transition:.3s;font-family:var(--font-mono);}
+.pw-option:hover{border-color:#444;}
+.pw-option.selected-good{border-color:#39ff8f;background:rgba(57,255,143,.06);}
+.pw-option.selected-bad{border-color:#ff3a6e;background:rgba(255,58,110,.06);}
+.pw-option-value{font-size:.95rem;color:#00d4ff;margin-bottom:3px;}
+.pw-option-hint{font-size:.68rem;color:#444;}
+.wifi-simulator{background:linear-gradient(135deg,#0d1117,#141b2d);border:1px solid #1e2d45;border-radius:11px;padding:0;overflow:hidden;}
+.wifi-taskbar{background:#1a1a2e;padding:7px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #252540;font-size:.72rem;color:#8888aa;font-family:var(--font-mono);}
+.wifi-panel{padding:18px;}
+.wifi-panel-title{font-family:var(--font-head);font-size:.95rem;color:#ccddff;letter-spacing:1px;margin-bottom:14px;}
+.wifi-network{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:12px;margin-bottom:7px;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:12px;}
+.wifi-network:hover{background:rgba(0,120,255,.1);border-color:rgba(0,120,255,.3);}
+.wifi-network.selected-network{background:rgba(0,120,255,.15);border-color:rgba(0,120,255,.5);}
+.wifi-info{flex:1;}
+.wifi-name{font-family:var(--font-mono);font-size:.88rem;color:#ddeeff;}
+.wifi-details{font-size:.7rem;color:#667788;margin-top:2px;}
+.wifi-connect-btn{margin-top:12px;padding:9px 18px;background:rgba(0,120,255,.18);border:1px solid rgba(0,120,255,.45);border-radius:5px;color:#4499ff;font-family:var(--font-mono);font-size:.78rem;cursor:pointer;width:100%;transition:.3s;}
+.wifi-connect-btn:hover{background:rgba(0,120,255,.32);}
+.wifi-connecting-anim{display:none;text-align:center;padding:18px;font-family:var(--font-mono);color:#4499ff;}
+.wifi-dots span{animation:dotPulse 1.2s ease-in-out infinite;}
+.wifi-dots span:nth-child(2){animation-delay:.2s;}.wifi-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotPulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+.wifi-result{display:none;padding:14px;border-radius:7px;margin-top:9px;font-family:var(--font-mono);font-size:.83rem;}
+.wifi-result.safe{background:rgba(57,255,143,.09);border:1px solid rgba(57,255,143,.28);color:#39ff8f;}
+.wifi-result.hacked{background:rgba(255,58,110,.09);border:1px solid rgba(255,58,110,.28);color:#ff3a6e;}
+.email-client{background:#1a1a2e;border-radius:9px;overflow:hidden;border:1px solid #252540;}
+.email-toolbar{background:#141425;padding:7px 13px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #252540;}
+.email-toolbar-btn{padding:3px 9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:3px;color:#8888aa;font-size:.7rem;cursor:default;font-family:var(--font-mono);}
+.email-layout{display:grid;grid-template-columns:200px 1fr;}
+.email-sidebar{border-right:1px solid #252540;padding:12px;}
+.email-folder{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:5px;font-size:.8rem;color:#8888aa;cursor:default;font-family:var(--font-mono);}
+.email-folder.active{background:rgba(0,120,255,.14);color:#4499ff;}
+.email-item{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:.2s;}
+.email-item:hover{background:rgba(255,255,255,.03);}
+.email-item.selected{background:rgba(0,120,255,.09);}
+.email-item.unread .email-subject{font-weight:700;color:#ddeeff;}
+.email-from{font-size:.72rem;color:#8888aa;margin-bottom:2px;font-family:var(--font-mono);}
+.email-subject{font-size:.81rem;color:#aabbcc;}
+.email-preview{font-size:.7rem;color:#445566;margin-top:2px;}
+.email-view{padding:18px;display:none;}
+.email-view.active{display:block;}
+.email-header-view{border-bottom:1px solid #252540;padding-bottom:12px;margin-bottom:12px;}
+.email-from-view{font-family:var(--font-mono);font-size:.78rem;color:#8888aa;}
+.email-from-view strong{color:#ff9944;}
+.email-subj-view{font-size:1.05rem;font-family:var(--font-head);margin:3px 0;letter-spacing:.5px;}
+.email-body{font-size:.83rem;line-height:1.7;color:#aabbcc;}
+.email-link{display:inline-block;margin-top:9px;padding:7px 14px;background:rgba(0,100,200,.18);border:1px solid rgba(0,100,200,.38);border-radius:3px;color:#4499ff;font-family:var(--font-mono);font-size:.78rem;text-decoration:none;}
+.phishing-verdict{display:flex;gap:10px;margin-top:14px;}
+.verdict-btn{flex:1;padding:11px;border-radius:7px;border:2px solid;cursor:pointer;font-family:var(--font-head);font-size:.92rem;font-weight:600;letter-spacing:1px;transition:.3s;}
+.verdict-real{border-color:#39ff8f;color:#39ff8f;background:rgba(57,255,143,.05);}.verdict-real:hover{background:rgba(57,255,143,.14);}
+.verdict-fake{border-color:#ff3a6e;color:#ff3a6e;background:rgba(255,58,110,.05);}.verdict-fake:hover{background:rgba(255,58,110,.14);}
+.file-explorer{background:#1a1a2e;border-radius:9px;overflow:hidden;border:1px solid #252540;}
+.fe-toolbar{background:#141425;padding:7px 13px;border-bottom:1px solid #252540;font-family:var(--font-mono);font-size:.72rem;color:#8888aa;display:flex;align-items:center;gap:7px;}
+.fe-path{flex:1;background:#0d0d1a;border:1px solid #252540;border-radius:3px;padding:3px 9px;}
+.fe-layout{display:grid;grid-template-columns:155px 1fr;}
+.fe-sidebar{border-right:1px solid #252540;padding:9px;}
+.fe-folder{padding:6px 9px;font-family:var(--font-mono);font-size:.75rem;color:#8888aa;border-radius:3px;cursor:default;}
+.fe-folder.active{background:rgba(0,120,255,.14);color:#4499ff;}
+.fe-grid{padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+.fe-item{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:7px;padding:11px;text-align:center;cursor:pointer;transition:.3s;position:relative;}
+.fe-item:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.13);}
+.fe-item.suspicious{animation:suspPulse 2.5s ease-in-out infinite;}
+@keyframes suspPulse{0%,100%{border-color:rgba(255,255,255,.05);}50%{border-color:rgba(255,58,110,.28);}}
+.fe-item.marked-malware{border-color:var(--danger);background:rgba(255,58,110,.07);}
+.fe-item.marked-safe{border-color:var(--accent3);background:rgba(57,255,143,.04);}
+.fe-icon{font-size:1.7rem;margin-bottom:5px;}
+.fe-name{font-family:var(--font-mono);font-size:.64rem;color:#8899aa;word-break:break-all;}
+.fe-size{font-size:.6rem;color:#445566;margin-top:2px;}
+.fe-mark-btns{display:flex;gap:3px;margin-top:7px;}
+.fe-btn{flex:1;padding:2px 4px;border-radius:3px;border:1px solid;font-size:.6rem;cursor:pointer;font-family:var(--font-mono);transition:.2s;}
+.fe-btn-safe{border-color:rgba(57,255,143,.28);color:#39ff8f;background:transparent;}.fe-btn-safe:hover{background:rgba(57,255,143,.14);}
+.fe-btn-danger{border-color:rgba(255,58,110,.28);color:#ff3a6e;background:transparent;}.fe-btn-danger:hover{background:rgba(255,58,110,.14);}
+.chat-interface{background:#0d1117;border-radius:9px;overflow:hidden;border:1px solid #1e2d45;}
+.chat-header{background:#141b2d;padding:11px 14px;border-bottom:1px solid #1e2d45;display:flex;align-items:center;gap:9px;}
+.chat-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;}
+.chat-contact{font-family:var(--font-head);font-size:.92rem;letter-spacing:.5px;}
+.chat-status{font-size:.7rem;color:#39ff8f;}
+.chat-messages{padding:14px;min-height:160px;display:flex;flex-direction:column;gap:9px;}
+.msg{max-width:74%;padding:9px 13px;border-radius:11px;font-size:.82rem;line-height:1.5;}
+.msg-them{background:#1e2d45;border-radius:11px 11px 11px 3px;align-self:flex-start;color:#aabbcc;}
+.msg-them.suspicious-msg{border-left:3px solid rgba(255,58,110,.45);}
+.msg-me{background:linear-gradient(135deg,#1a4480,#0d2a5c);border-radius:11px 11px 3px 11px;align-self:flex-end;color:#ccddff;}
+.msg-sender{font-size:.68rem;color:#556677;margin-bottom:2px;font-family:var(--font-mono);}
+.msg-time{font-size:.63rem;color:#334455;margin-top:3px;text-align:right;}
+.red-flag-chip{padding:5px 11px;border-radius:20px;font-size:.73rem;background:rgba(255,58,110,.09);border:1px solid rgba(255,58,110,.28);color:#ff3a6e;cursor:pointer;transition:.3s;font-family:var(--font-mono);}
+.red-flag-chip:hover{background:rgba(255,58,110,.18);}
+.red-flag-chip.selected{background:rgba(255,58,110,.22);border-color:#ff3a6e;}
+.crypto-terminal{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:9px;overflow:hidden;font-family:var(--font-mono);}
+.crypto-tabs{display:flex;border-bottom:1px solid #1a1a1a;}
+.crypto-tab{padding:9px 18px;font-size:.78rem;cursor:pointer;border-bottom:2px solid transparent;color:#445566;transition:.2s;}
+.crypto-tab.active{color:#00d4ff;border-bottom-color:#00d4ff;}
+.crypto-body{padding:18px;}
+.cipher-display{background:#111;border:1px solid #222;border-radius:7px;padding:12px;font-size:.88rem;color:#ffd93d;letter-spacing:3px;word-break:break-all;min-height:44px;line-height:1.8;margin-bottom:12px;}
+.cipher-wheel{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:14px;}
+.cipher-key-btn{width:34px;height:34px;border-radius:5px;border:1px solid #1a1a1a;background:#111;color:#445566;font-size:.78rem;cursor:pointer;transition:.2s;}
+.cipher-key-btn:hover{border-color:#00d4ff;color:#00d4ff;}
+.cipher-key-btn.active{border-color:#00d4ff;background:rgba(0,212,255,.09);color:#00d4ff;}
+.decoded-display{background:#0d1a0d;border:1px solid #1a2a1a;border-radius:7px;padding:12px;color:#39ff8f;font-size:.88rem;min-height:44px;line-height:1.8;letter-spacing:2px;}
+</style>
+</head>
+<body>
+<div class="scanlines-overlay" id="scanlines"></div>
+
+<!-- HACK INTRO -->
+<div id="hackIntro">
+  <div class="school-header-fake">
+    <div class="school-logo-fake">BRG</div>
+    <div class="school-title-fake">
+      <h1>BRG INNSBRUCK</h1>
+      <p>Bundesrealgymnasium Innsbruck – Offizielles Schulportal</p>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:12px;font-family:Arial;font-size:.78rem;color:#aac;">
+      <span>📞 0512 / 58 43 10</span><span>|</span><span>📧 office@brg-innsbruck.at</span>
+    </div>
+  </div>
+  <div class="fake-nav">
+    <div class="fake-nav-item active">Startseite</div>
+    <div class="fake-nav-item">Aktuelles</div>
+    <div class="fake-nav-item">Unterricht</div>
+    <div class="fake-nav-item">Stundenplan</div>
+    <div class="fake-nav-item">Eltern</div>
+    <div class="fake-nav-item">SchülerInnen</div>
+    <div class="fake-nav-item">Kontakt</div>
+  </div>
+  <div class="fake-content">
+    <div class="fake-main" id="fakeMain">
+      <h2 style="color:#1a3a6e;font-family:Arial;margin-bottom:12px;font-size:1.2rem;">Willkommen am BRG Innsbruck</h2>
+      <div style="background:#f0f4ff;border-left:4px solid #1a3a6e;padding:11px 14px;margin-bottom:14px;border-radius:0 5px 5px 0;">
+        <strong style="font-size:.83rem;color:#1a3a6e;">📌 Aktuelle Mitteilung:</strong>
+        <p style="font-size:.8rem;color:#444;margin-top:3px;">Der diesjährige Tag der offenen Tür findet am 15. März statt. Alle Eltern und Interessierte sind herzlich willkommen!</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;" id="fakeGrid">
+        <div style="background:#f8f9fb;border:1px solid #e2e8f0;border-radius:5px;padding:12px;">
+          <div style="font-weight:700;font-size:.83rem;color:#2a3a50;margin-bottom:7px;">📅 Termine</div>
+          <div style="font-size:.76rem;color:#556;line-height:1.9;font-family:Arial;">
+            <div>• 15.03 – Tag der offenen Tür</div><div>• 22.03 – Elternsprechtag</div>
+            <div>• 01.04 – Osterferien Beginn</div><div>• 12.04 – Unterrichtsbeginn</div>
+          </div>
+        </div>
+        <div style="background:#f8f9fb;border:1px solid #e2e8f0;border-radius:5px;padding:12px;">
+          <div style="font-weight:700;font-size:.83rem;color:#2a3a50;margin-bottom:7px;">📰 Neuigkeiten</div>
+          <div style="font-size:.76rem;color:#556;line-height:1.9;font-family:Arial;">
+            <div>• Neue Schulbibliothek eröffnet</div><div>• Sportturnier: 3. Platz!</div>
+            <div>• Schülerzeitung erschienen</div><div>• Projektwoche Programm steht fest</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#e8f4e8;border:1px solid #b8d8b8;border-radius:5px;padding:11px;font-family:Arial;font-size:.78rem;color:#2a5a2a;" id="fakeNews">
+        <strong>🏆 Auszeichnung:</strong> Das BRG Innsbruck wurde als "Digitale Schule des Jahres 2024" ausgezeichnet!
+      </div>
+    </div>
+    <div class="fake-sidebar">
+      <div class="fake-widget">
+        <div style="font-weight:700;font-size:.83rem;color:#2a3a50;margin-bottom:9px;font-family:Arial;">🔐 Schüler-Login</div>
+        <input type="text" placeholder="Benutzername" style="width:100%;padding:6px;border:1px solid #dde;border-radius:3px;font-size:.78rem;margin-bottom:5px;font-family:Arial;">
+        <input type="password" placeholder="Passwort" style="width:100%;padding:6px;border:1px solid #dde;border-radius:3px;font-size:.78rem;margin-bottom:7px;font-family:Arial;">
+        <button style="width:100%;padding:7px;background:#1a3a6e;color:#fff;border:none;border-radius:3px;font-size:.8rem;cursor:default;font-family:Arial;">Anmelden</button>
+      </div>
+      <div class="fake-widget">
+        <div style="font-weight:700;font-size:.83rem;color:#2a3a50;margin-bottom:9px;font-family:Arial;">📊 Schulstatistik</div>
+        <div style="font-size:.76rem;color:#556;line-height:2.1;font-family:Arial;">
+          <div>👩‍🎓 Schüler/innen: <strong>847</strong></div><div>👨‍🏫 Lehrkräfte: <strong>62</strong></div>
+          <div>🏫 Klassen: <strong>32</strong></div><div>⭐ Gegründet: <strong>1912</strong></div>
+        </div>
+      </div>
+      <div class="fake-widget">
+        <div style="font-weight:700;font-size:.83rem;color:#2a3a50;margin-bottom:7px;font-family:Arial;">🌤 Wetter Innsbruck</div>
+        <div style="text-align:center;font-family:Arial;">
+          <div style="font-size:1.9rem;">⛅</div>
+          <div style="font-size:1.2rem;font-weight:700;color:#2a3a50;">12°C</div>
+          <div style="font-size:.73rem;color:#778;">Teilweise bewölkt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="glitchOverlay"></div>
+<div class="hack-text-overlay" id="hackTextOverlay"></div>
+
+<!-- HACKER VIDEO -->
+<div id="hackerVideo">
+  <div style="text-align:center;">
+    <div class="hacker-avatar">🎭</div>
+    <div class="speaking-indicator" id="speakingInd">
+      <div class="speaking-bar"></div><div class="speaking-bar"></div><div class="speaking-bar"></div>
+      <div class="speaking-bar"></div><div class="speaking-bar"></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:.68rem;color:#333;margin-top:4px;" id="speakerStatus">● LIVE ÜBERTRAGUNG</div>
+  </div>
+  <div class="hacker-terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background:#ff5f57;"></div>
+      <div class="terminal-dot" style="background:#febc2e;"></div>
+      <div class="terminal-dot" style="background:#28c840;"></div>
+      <div style="flex:1;text-align:center;font-family:var(--font-mono);font-size:.68rem;color:#333;">ANONYMUS_BROADCAST_v2.1 — VERSCHLÜSSELT</div>
+    </div>
+    <div class="terminal-screen" id="terminalScreen">
+      <div class="vscanline"></div>
+      <div id="hackerMessage"></div>
+    </div>
+  </div>
+  <button class="skip-btn" onclick="startMainApp()">[ ÜBERTRAGUNG ÜBERSPRINGEN → ]</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-glow"></div>
+  <div style="position:absolute;top:14px;right:18px;">
+    <a href="#" onclick="showAdminPortal();return false;" style="font-family:var(--font-mono);font-size:.68rem;color:var(--text2);text-decoration:none;opacity:.35;transition:.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.35">[LEHRER-PORTAL]</a>
+  </div>
+  <div class="login-card">
+    <div class="school-badge">
+      <div class="badge-icon">🏫</div>
+      <div class="badge-text"><h2>BRG INNSBRUCK</h2><p>Cybersecurity Challenge 2025</p></div>
+    </div>
+    <div style="background:rgba(255,58,110,.07);border:1px solid rgba(255,58,110,.22);border-radius:9px;padding:13px;margin-bottom:22px;">
+      <div style="font-family:var(--font-mono);font-size:.68rem;color:var(--danger);letter-spacing:1px;margin-bottom:5px;">⚠ SYSTEM-STATUS: KOMPROMITTIERT</div>
+      <div style="font-size:.79rem;color:var(--text2);line-height:1.55;">Ein unbekannter Hacker hat unsere Schulwebsite angegriffen. Euer Team muss 6 digitale Stationen meistern um die Systeme zu retten!</div>
+    </div>
+    <div class="login-title">TEAM LOGIN</div>
+    <div class="login-subtitle">Meldet euch mit eurem Teamnamen an – ihr braucht kein Konto erstellen!</div>
+    <div class="form-group">
+      <label class="form-label">Team-Name</label>
+      <input type="text" class="form-input" id="teamName" placeholder="z.B. CyberEagles" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Team-Passwort</label>
+      <input type="password" class="form-input" id="teamPassword" placeholder="Wählt ein starkes Passwort!" oninput="checkPwStrength(this.value)" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwFill"></div></div>
+      <div class="pw-strength-text" id="pwStrengthText" style="color:var(--text2);">— Noch kein Passwort eingegeben</div>
+      <div class="pw-warning" id="pwWarning">⚠ <strong>ACHTUNG:</strong> Euer Passwort ist zu schwach! Ihr riskiert, im Spielverlauf Punkte zu verlieren – wählt ein stärkeres Passwort!</div>
+    </div>
+    <button class="btn-primary" onclick="doLogin()" id="loginBtn">MISSION STARTEN ⟶</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div class="topbar-emblem">BRG</div>
+      <div class="topbar-name">INNSBRUCK <span>CYBER</span></div>
+    </div>
+    <div class="topbar-hack-badge">⚡ SYSTEM GEHACKT</div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-team">
+      <div class="team-avatar" id="teamAvatarTop">??</div>
+      <div class="team-info-top">
+        <p id="teamNameTop">Team</p>
+        <p id="teamPwStrTop">–</p>
+      </div>
+    </div>
+    <div class="topbar-pts"><span>PUNKTE</span><span id="topPts">0</span></div>
+  </div>
+
+  <div id="dashboard" style="flex:1;padding:24px 22px;max-width:1280px;margin:0 auto;width:100%;">
+    <div class="dash-hero">
+      <h1>⚠ MISSION: SYSTEM RETTEN</h1>
+      <p>Das BRG Innsbruck wurde von einem unbekannten Hacker kompromittiert. Eure Mission: Absolviert alle 6 Cybersecurity-Stationen und beweist, dass ihr die digitale Welt versteht und schützen könnt!</p>
+    </div>
+    <div class="dash-grid">
+      <div class="stat-card"><div class="stat-label">Punkte gesamt</div><div class="stat-value" style="color:var(--accent3);" id="dashTotalPts">0</div></div>
+      <div class="stat-card"><div class="stat-label">Stationen erledigt</div><div class="stat-value" style="color:var(--accent);" id="dashCompleted">0 / 6</div></div>
+      <div class="stat-card"><div class="stat-label">Rang im Scoreboard</div><div class="stat-value" style="color:var(--warn);" id="dashRank">#—</div></div>
+    </div>
+    <div class="section-title" style="font-family:var(--font-head);font-size:1.05rem;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:9px;">🎯 STATIONEN<span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+    <div class="stations-grid" id="stationsGrid"></div>
+    <div style="margin-top:22px;">
+      <div class="section-title" style="font-family:var(--font-head);font-size:1.05rem;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:9px;">🏆 LIVE SCOREBOARD<span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+      <table class="scoreboard-table">
+        <thead><tr><th style="width:46px;">Rang</th><th>Team</th><th>Stationen ✓</th><th>Punkte</th><th>Status</th></tr></thead>
+        <tbody id="scoreboardBody"><tr><td colspan="5" style="text-align:center;color:var(--text2);padding:18px;font-family:var(--font-mono);font-size:.78rem;">Lade Scoreboard...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- STATION MODAL -->
+<div id="stationModal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<!-- ADMIN PORTAL -->
+<div id="adminPortal">
+  <div class="admin-bar">
+    <div style="font-size:1.4rem;">🔐</div>
+    <h1>LEHRER-PORTAL // BRG Innsbruck</h1>
+    <button onclick="closeAdminPortal()" style="margin-left:auto;padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;font-family:var(--font-mono);font-size:.76rem;">✕ Schließen</button>
+  </div>
+  <div id="adminLoginArea" style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div style="width:340px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:30px;">
+      <div style="font-family:var(--font-head);font-size:1.15rem;letter-spacing:2px;margin-bottom:18px;color:var(--danger);">ADMIN LOGIN</div>
+      <div class="form-group"><label class="form-label">Benutzername</label><input type="text" class="form-input" id="adminUser" placeholder="admin"></div>
+      <div class="form-group"><label class="form-label">Passwort</label><input type="password" class="form-input" id="adminPw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <button class="btn-primary" onclick="doAdminLogin()">EINLOGGEN</button>
+      <div class="login-error" id="adminError"></div>
+    </div>
+  </div>
+  <div id="adminDashboard" style="display:none;flex:1;padding:26px;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div style="font-family:var(--font-head);font-size:1.3rem;letter-spacing:2px;">📊 ÜBERSICHT ALLER TEAMS</div>
+      <button onclick="loadAdminData()" style="padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;font-family:var(--font-mono);font-size:.75rem;">🔄 Aktualisieren</button>
+    </div>
+    <div id="adminContent"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG & STATE
+// ============================================================
+const SB_URL = 'https://hecblwtvtjhkihtzaoys.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlY2Jsd3R2dGpoa2lodHphb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODgxMDQsImV4cCI6MjA5MjU2NDEwNH0.JTCwqptU6Cs86OYC-MyDk-s6VWyG5LMgj467ZuxXqmA';
+const ADMIN_USER = 'admin', ADMIN_PW = 'BRG-Innsbruck-2025';
+const H = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'};
+
+let currentTeam = null, stationProgress = {}, totalPoints = 0, currentSpeech = null, hackerTimer = null;
+let s1Pts=0, s2Pts=0, s3Pts=0, s4Pts=0, s5Pts=0, s6Pts=0;
+
+// ============================================================
+// SUPABASE HELPERS
+// ============================================================
+async function sbGet(t,q=''){const r=await fetch(SB_URL+'/rest/v1/'+t+q,{headers:H});return r.json();}
+async function sbPost(t,d){const r=await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:H,body:JSON.stringify(d)});return r.json();}
+async function sbPatch(t,q,d){const r=await fetch(SB_URL+'/rest/v1/'+t+q,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});return r.json();}
+
+// ============================================================
+// HACK INTRO
+// ============================================================
+window.onload = ()=>startHackIntro();
+
+const hackSteps = [
+  {t:900,  msg:'VERBINDUNG AUFGEBAUT... brg-innsbruck.at'},
+  {t:1700, msg:'FIREWALL BYPASS: ████████ 100% ✓'},
+  {t:2400, msg:'ADMIN ZUGANG ERLANGT...'},
+  {t:3100, msg:'STUNDENPLAN.DB → VERSCHLÜSSELT ✓', fn:'corruptEl'},
+  {t:3800, msg:'NOTEN SYSTEM → GESPERRT ✓',       fn:'corruptEl'},
+  {t:4500, msg:'SCHÜLER-DATEN → ZUGÄNGLICH ✓',    fn:'corruptEl'},
+  {t:5200, msg:'E-MAIL SERVER → OFFLINE ✓',        fn:'corruptEl'},
+  {t:6000, msg:'VOLLSTÄNDIGE KONTROLLE ÜBERNOMMEN.', fn:'takeover'},
+  {t:7000, msg:'HACK COMPLETE. ÜBERTRAGE BOTSCHAFT...', fn:'final'},
+];
+
+function startHackIntro(){
+  const overlay=document.getElementById('glitchOverlay');
+  const txt=document.getElementById('hackTextOverlay');
+  hackSteps.forEach((step,i)=>{
+    setTimeout(()=>{
+      txt.style.opacity='1'; txt.textContent=step.msg;
+      overlay.style.opacity='0.6';
+      document.body.style.filter='hue-rotate('+Math.random()*180+'deg) brightness(1.3)';
+      setTimeout(()=>{document.body.style.filter='';overlay.style.opacity='0';},120);
+      if(step.fn==='corruptEl'){
+        const els=document.querySelectorAll('#fakeGrid>div, #fakeNews');
+        if(els[i-3]) els[i-3].style.cssText+=';opacity:0;transition:opacity .4s;';
+      }
+      if(step.fn==='takeover'){
+        document.querySelector('.school-header-fake').style.background='#1a0000';
+        document.querySelector('.fake-nav').style.background='#0d0000';
+        document.getElementById('fakeMain').innerHTML='<div style="font-family:monospace;color:#ff0000;text-align:center;padding:50px 20px;font-size:1.3rem;line-height:2;">⚠ DIESE SEITE WURDE GEHACKT ⚠<br><span style="font-size:.9rem;">BRG INNSBRUCK SCHULSYSTEM VOLLSTÄNDIG KOMPROMITTIERT</span></div>';
+      }
+      if(step.fn==='final'){
+        txt.style.fontSize='2rem'; txt.style.color='#ff0000';
+        setTimeout(showHackerVideo, 1200);
+      }
+    }, step.t);
+  });
+}
+
+function showHackerVideo(){
+  document.getElementById('hackIntro').style.display='none';
+  document.getElementById('glitchOverlay').style.opacity='0';
+  document.getElementById('hackTextOverlay').style.opacity='0';
+  document.getElementById('hackerVideo').style.display='flex';
+  document.getElementById('scanlines').style.opacity='1';
+  setTimeout(playHackerMessage, 800);
+}
+
+// ============================================================
+// HACKER TTS + TERMINAL
+// ============================================================
+const HACKER_LINES = [
+  '','Schülerinnen und Schüler des BRG Innsbruck.','Mein Name ist irrelevant.',
+  'Was relevant ist – euer Schulsystem gehört jetzt mir.','Alle Daten. Alle Passwörter. Alle Noten.',
+  'Verschlüsselt. Gesperrt. Weg.','Aber ich gebe euch eine Chance.',
+  'Ihr habt 60 Minuten.','Beweist, dass ihr die digitale Welt versteht.',
+  'Meistert die 6 Cybersecurity-Stationen.','Zeigt, dass ihr wisst wie man sich schützt.',
+  'Oder...','Die Daten verschwinden für immer.',
+  'Die Uhr läuft. Tick. Tock.','Viel Erfolg – ihr werdet es brauchen.',''
+];
+
+function playHackerMessage(){
+  const msgEl=document.getElementById('hackerMessage');
+  msgEl.innerHTML='';
+  let idx=0;
+  // TTS
+  if('speechSynthesis' in window){
+    const full=HACKER_LINES.filter(l=>l).join(' ... ');
+    const utt=new SpeechSynthesisUtterance(full);
+    utt.lang='de-DE'; utt.rate=0.7; utt.pitch=0.4; utt.volume=0.95;
+    const loadVoices=()=>{
+      const voices=window.speechSynthesis.getVoices();
+      const v=voices.find(v=>v.lang.startsWith('de'))||voices[0];
+      if(v) utt.voice=v;
+    };
+    if(window.speechSynthesis.getVoices().length) loadVoices();
+    else window.speechSynthesis.onvoiceschanged=loadVoices;
+    currentSpeech=utt;
+    window.speechSynthesis.speak(utt);
+  }
+  // Animate lines
+  hackerTimer=setInterval(()=>{
+    if(idx>=HACKER_LINES.length){
+      clearInterval(hackerTimer);
+      document.getElementById('speakerStatus').textContent='● ÜBERTRAGUNG BEENDET';
+      document.getElementById('speakingInd').style.opacity='0.25';
+      setTimeout(startMainApp,2800);
+      return;
+    }
+    const line=document.createElement('div');
+    line.className='terminal-line';
+    const txt=HACKER_LINES[idx];
+    if(!txt){line.innerHTML='<br>';}
+    else line.textContent='> '+txt;
+    msgEl.appendChild(line);
+    msgEl.scrollTop=msgEl.scrollHeight;
+    idx++;
+  }, 680);
+}
+
+function startMainApp(){
+  if(currentSpeech) window.speechSynthesis.cancel();
+  clearInterval(hackerTimer);
+  document.getElementById('hackerVideo').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+// ============================================================
+// PASSWORD STRENGTH
+// ============================================================
+function checkPwStrength(pw){
+  const fill=document.getElementById('pwFill');
+  const txt=document.getElementById('pwStrengthText');
+  const warn=document.getElementById('pwWarning');
+  if(!pw){fill.style.width='0%';txt.textContent='— Noch kein Passwort eingegeben';txt.style.color='var(--text2)';warn.style.display='none';return 0;}
+  let s=0;
+  if(pw.length>=8)s++; if(pw.length>=12)s++; if(pw.length>=16)s++;
+  if(/[A-Z]/.test(pw))s++; if(/[0-9]/.test(pw))s++; if(/[^a-zA-Z0-9]/.test(pw))s++;
+  const lvls=[
+    {p:'16%',c:'#ff3a6e',l:'Sehr schwach ❌'},
+    {p:'32%',c:'#ff6b35',l:'Schwach ⚠'},
+    {p:'48%',c:'#ffa500',l:'Mittelmäßig ⚡'},
+    {p:'66%',c:'#a0d96a',l:'Gut ✓'},
+    {p:'83%',c:'#39ff8f',l:'Stark ✓✓'},
+    {p:'100%',c:'#00d4ff',l:'Sehr stark 🔐'},
+  ];
+  const i=Math.min(Math.max(s-1,0),5);
+  const lvl=lvls[i];
+  fill.style.width=lvl.p; fill.style.background=lvl.c;
+  txt.textContent=lvl.l; txt.style.color=lvl.c;
+  warn.style.display=(s<=2)?'block':'none';
+  return s;
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function doLogin(){
+  const name=document.getElementById('teamName').value.trim();
+  const pw=document.getElementById('teamPassword').value;
+  const err=document.getElementById('loginError');
+  const btn=document.getElementById('loginBtn');
+  if(!name||!pw){err.textContent='Bitte Teamname und Passwort eingeben!';err.style.display='block';return;}
+  btn.disabled=true; btn.textContent='Verbinde...';
+  const pwScore=checkPwStrength(pw);
+  try{
+    let teams=await sbGet('teams','?team_name=eq.'+encodeURIComponent(name)+'&select=*');
+    if(!Array.isArray(teams)) teams=[];
+    let team;
+    if(teams.length>0){
+      if(teams[0].password!==pw){err.textContent='Falsches Passwort für dieses Team!';err.style.display='block';btn.disabled=false;btn.textContent='MISSION STARTEN ⟶';return;}
+      team=teams[0];
+    } else {
+      const pwLabel=['Sehr schwach','Schwach','Mittelmäßig','Gut','Stark','Sehr stark'][Math.min(Math.max(pwScore-1,0),5)];
+      const created=await sbPost('teams',{team_name:name,password:pw,password_strength:pwLabel,total_points:0});
+      if(Array.isArray(created)&&created.length>0) team=created[0];
+      else{
+        let retry=await sbGet('teams','?team_name=eq.'+encodeURIComponent(name)+'&select=*');
+        if(Array.isArray(retry)&&retry.length>0) team=retry[0];
+        else{err.textContent='Datenbankfehler – prüfe die Supabase-Verbindung.';err.style.display='block';btn.disabled=false;btn.textContent='MISSION STARTEN ⟶';return;}
+      }
+    }
+    currentTeam=team;
+    await loadProgress();
+    err.style.display='none';
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='flex';
+    renderTopBar(); renderStations(); loadScoreboard();
+    setInterval(loadScoreboard,30000);
+  }catch(e){err.textContent='Verbindungsfehler: '+e.message;err.style.display='block';}
+  btn.disabled=false; btn.textContent='MISSION STARTEN ⟶';
+}
+
+async function loadProgress(){
+  const data=await sbGet('station_progress','?team_id=eq.'+currentTeam.id+'&select=*');
+  stationProgress={}; totalPoints=0;
+  if(Array.isArray(data)) data.forEach(p=>{stationProgress[p.station_number]=p;totalPoints+=(p.points_earned||0);});
+  document.getElementById('topPts').textContent=totalPoints;
+  document.getElementById('dashTotalPts').textContent=totalPoints;
+}
+
+function renderTopBar(){
+  const n=currentTeam.team_name;
+  document.getElementById('teamNameTop').textContent=n;
+  document.getElementById('teamAvatarTop').textContent=n.substring(0,2).toUpperCase();
+  const weak=currentTeam.password_strength&&(currentTeam.password_strength.includes('schwach')||currentTeam.password_strength==='Sehr schwach'||currentTeam.password_strength==='Schwach');
+  document.getElementById('teamPwStrTop').textContent=weak?'⚠ Schwaches PW':'✓ Sicheres PW';
+  document.getElementById('teamPwStrTop').style.color=weak?'var(--danger)':'var(--accent3)';
+}
+
+// ============================================================
+// STATIONS
+// ============================================================
+const STATIONS=[
+  {id:1,icon:'🔐',name:'Passwort-Labor',desc:'Untersuche Passwörter und verstehe Brute-Force-Angriffe.',color:'#00d4ff',maxPts:150,time:'8–12 min'},
+  {id:2,icon:'📡',name:'WLAN-Gefahren',desc:'Erkenne gefährliche Netzwerke im interaktiven Windows-Simulator.',color:'#39ff8f',maxPts:150,time:'8–10 min'},
+  {id:3,icon:'🎣',name:'Phishing-Detektor',desc:'Erkenne Phishing-E-Mails bevor es zu spät ist.',color:'#ff3a6e',maxPts:150,time:'10–12 min'},
+  {id:4,icon:'🦠',name:'Malware-Abwehr',desc:'Finde alle schädlichen Dateien im Dateimanager.',color:'#ffd93d',maxPts:150,time:'8–10 min'},
+  {id:5,icon:'🕵️',name:'Social Engineering',desc:'Erkenne Manipulations-Taktiken in echten Chat-Szenarien.',color:'#a855f7',maxPts:150,time:'10–12 min'},
+  {id:6,icon:'🔒',name:'Verschlüsselung',desc:'Knacke den Caesar-Code und entschlüssle die Hacker-Botschaft.',color:'#f97316',maxPts:150,time:'10–15 min'},
+];
+const S_COLORS=['#00d4ff','#39ff8f','#ff3a6e','#ffd93d','#a855f7','#f97316'];
+
+function renderStations(){
+  const grid=document.getElementById('stationsGrid');
+  let done=0;
+  grid.innerHTML=STATIONS.map(s=>{
+    const p=stationProgress[s.id]||{};
+    const st=p.status||'open';
+    const pts=p.points_earned||0;
+    const pct=Math.round((pts/s.maxPts)*100);
+    if(st==='completed')done++;
+    const slabel={open:'Offen','in-progress':'In Bearbeitung',completed:'Abgeschlossen'}[st]||'Offen';
+    const scls={open:'status-open','in-progress':'status-progress',completed:'status-done'}[st]||'status-open';
+    return `<div class="station-card ${st}" onclick="openStation(${s.id})" style="border-top:3px solid ${s.color}33;">
+      <div class="station-num">STATION ${String(s.id).padStart(2,'0')}</div>
+      <div class="station-icon">${s.icon}</div>
+      <div class="station-name">${s.name}</div>
+      <div class="station-desc">${s.desc}</div>
+      <div class="station-meta">
+        <div class="station-pts">⭐ ${pts} / ${s.maxPts} Pts</div>
+        <div class="station-status ${scls}">${slabel}</div>
+      </div>
+      <div class="station-progress-bar"><div class="station-progress-fill" style="width:${pct}%;background:${s.color};"></div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('dashCompleted').textContent=done+' / 6';
+}
+
+async function loadScoreboard(){
+  const teams=await sbGet('teams','?select=*&order=total_points.desc');
+  const tb=document.getElementById('scoreboardBody');
+  if(!Array.isArray(teams)||!teams.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:18px;font-family:var(--font-mono);font-size:.78rem;">Noch keine Teams registriert.</td></tr>';return;}
+  const myRank=teams.findIndex(t=>t.id===currentTeam?.id)+1;
+  if(myRank>0) document.getElementById('dashRank').textContent='#'+myRank;
+  tb.innerHTML=teams.map((t,i)=>{
+    const isMe=currentTeam&&t.id===currentTeam.id;
+    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    const weak=t.password_strength&&(t.password_strength==='Sehr schwach'||t.password_strength==='Schwach');
+    const stDone=isMe?Object.values(stationProgress).filter(p=>p.status==='completed').length:'—';
+    return `<tr class="${isMe?'my-team':''}">
+      <td><div class="rank-badge ${rc}">${medal}</div></td>
+      <td><div style="font-weight:600;font-family:var(--font-head);letter-spacing:.5px;">${t.team_name}${isMe?' <span style="font-size:.65rem;color:var(--accent);font-family:var(--font-mono);">[IHR]</span>':''}</div>${weak?'<div style="font-size:.65rem;color:var(--danger);font-family:var(--font-mono);">⚠ Schwaches Passwort</div>':''}</td>
+      <td style="font-family:var(--font-mono);font-size:.83rem;">${stDone}${isMe?' / 6':''}</td>
+      <td style="font-family:var(--font-head);font-size:1.05rem;color:var(--accent3);font-weight:700;">${t.total_points||0}</td>
+      <td style="font-size:.72rem;color:var(--text2);font-family:var(--font-mono);">${(t.total_points||0)>0?'🔥 Aktiv':'⏳ Bereit'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// STATION MODAL
+// ============================================================
+function openStation(id){
+  const s=STATIONS.find(x=>x.id===id);
+  const p=stationProgress[id]||{};
+  document.getElementById('stationModal').style.display='flex';
+  const mc=document.getElementById('modalContent');
+  mc.innerHTML=`<div class="modal-header" style="border-top:3px solid ${s.color};">
+    <div class="modal-header-icon">${s.icon}</div>
+    <div class="modal-header-info"><h2>${s.name}</h2><p>Station ${s.id} · Max. ${s.maxPts} Punkte · ⏱ ${s.time}</p></div>
+    <button class="modal-close" onclick="closeStation()">✕</button>
+  </div>
+  <div class="modal-body" id="modalBody">${buildStation(id,p.saved_data||{})}</div>
+  <div class="modal-footer">
+    <button class="btn-save" onclick="saveStation(${id})">💾 Speichern</button>
+    <button class="btn-complete" onclick="completeStation(${id})">✓ Abschließen & Punkte einreichen</button>
+    <div class="modal-footer-pts" id="stationPtsDisplay">⭐ ${p.points_earned||0} / ${s.maxPts}</div>
+  </div>`;
+  setTimeout(()=>initStationLogic(id,p.saved_data||{}),80);
+}
+
+function closeStation(){document.getElementById('stationModal').style.display='none';if(currentSpeech)window.speechSynthesis.cancel();}
+
+function updateStationPts(id,pts){
+  const el=document.getElementById('stationPtsDisplay');
+  const s=STATIONS.find(x=>x.id===id);
+  if(el&&s) el.textContent='⭐ '+pts+' / '+s.maxPts;
+}
+
+async function saveStation(id){
+  const s=STATIONS.find(x=>x.id===id);
+  const pts=getCurrentPts(id);
+  const existing=stationProgress[id];
+  const data={team_id:currentTeam.id,station_number:id,status:'in-progress',points_earned:pts,saved_data:{}};
+  if(existing){
+    await sbPatch('station_progress','?team_id=eq.'+currentTeam.id+'&station_number=eq.'+id,{points_earned:pts,status:'in-progress'});
+    stationProgress[id]={...existing,...data};
+  } else {
+    const r=await sbPost('station_progress',data);
+    if(Array.isArray(r)&&r[0]) stationProgress[id]=r[0];
+    else stationProgress[id]=data;
+  }
+  totalPoints=Object.values(stationProgress).reduce((a,p)=>a+(p.points_earned||0),0);
+  await sbPatch('teams','?id=eq.'+currentTeam.id,{total_points:totalPoints});
+  document.getElementById('topPts').textContent=totalPoints;
+  document.getElementById('dashTotalPts').textContent=totalPoints;
+  const btn=document.querySelector('.btn-save');
+  if(btn){btn.textContent='✅ Gespeichert!';btn.style.color='var(--accent3)';setTimeout(()=>{btn.textContent='💾 Speichern';btn.style.color='';},2000);}
+}
+
+async function completeStation(id){
+  const pts=getCurrentPts(id);
+  if(pts===0&&!confirm('Keine Punkte erzielt – trotzdem abschließen?')) return;
+  const existing=stationProgress[id];
+  const data={team_id:currentTeam.id,station_number:id,status:'completed',points_earned:pts};
+  if(existing){
+    await sbPatch('station_progress','?team_id=eq.'+currentTeam.id+'&station_number=eq.'+id,{points_earned:pts,status:'completed'});
+    stationProgress[id]={...existing,...data};
+  } else {
+    const r=await sbPost('station_progress',data);
+    if(Array.isArray(r)&&r[0]) stationProgress[id]=r[0];
+    else stationProgress[id]=data;
+  }
+  totalPoints=Object.values(stationProgress).reduce((a,p)=>a+(p.points_earned||0),0);
+  await sbPatch('teams','?id=eq.'+currentTeam.id,{total_points:totalPoints});
+  document.getElementById('topPts').textContent=totalPoints;
+  document.getElementById('dashTotalPts').textContent=totalPoints;
+  closeStation(); renderStations(); loadScoreboard();
+  showToast('Station '+id+' abgeschlossen! +'+pts+' Punkte 🎉');
+}
+
+function getCurrentPts(id){
+  switch(id){case 1:return s1Pts;case 2:return s2Pts;case 3:return s3Pts;case 4:return s4Pts;case 5:return s5Pts;case 6:return s6Pts;}
+  return 0;
+}
+
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--accent3);border-radius:10px;padding:13px 20px;font-family:var(--font-mono);font-size:.83rem;color:var(--accent3);z-index:9999;transition:opacity .4s;';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',3500);
+}
+
+function toggleHint(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='block'?'none':'block';}
+
+// ============================================================
+// AI VIDEO PLAYER (TTS per Station)
+// ============================================================
+const stationVideos={
+  1:['Passwort-Sicherheit ist das A und O im Internet.','Ein sicheres Passwort hat mindestens 12 Zeichen, Großbuchstaben, Zahlen und Sonderzeichen.','Brute-Force-Angriffe probieren alle Kombinationen durch – je länger das Passwort, desto länger dauert es.','Ein Passwort wie "hund123" kann in Sekunden geknackt werden.','Nutzt einen Passwort-Manager und niemals dasselbe Passwort zweimal!'],
+  2:['Öffentliche WLAN-Netzwerke sind oft unsicher und können leicht abgehört werden.','Ein Evil-Twin-Angriff: Hacker erstellen ein gefälschtes Netzwerk mit demselben Namen.','Verbindet euch NUR mit verifizierten Netzwerken und vermeidet öffentliche WLANs für sensible Daten.','WPA3 ist der aktuell sicherste WLAN-Verschlüsselungsstandard.','Nutzt immer ein VPN wenn ihr öffentliche Netzwerke verwenden müsst!'],
+  3:['Phishing ist eine der häufigsten Cyberangriffsmethoden – über 3 Milliarden Phishing-E-Mails täglich!','Achtet auf die Absender-E-Mail-Adresse: "paypal-sicherheit.net" ist NICHT paypal.com.','Druckaufbau wie "Handelt sofort!" oder "Nur noch 24 Stunden!" sind typische Warnsignale.','Klickt nie auf Links in verdächtigen E-Mails – geht stattdessen direkt auf die Webseite.','Im Zweifel: E-Mail löschen und beim Unternehmen direkt anrufen!'],
+  4:['Malware ist bösartige Software die euren Computer schädigen, Daten stehlen oder Lösegeld verlangen kann.','Dateien mit den Endungen .exe, .bat, .vbs sind ausführbare Programme – bei unbekannten Quellen VORSICHT!','Doppelte Dateiendungen wie "dokument.pdf.exe" sind ein klares Warnsignal für getarnte Malware.','Haltet euren Virenschutz aktuell und ladet Software nur von offiziellen Quellen herunter.','Denkt nach bevor ihr klickt: Habt ihr diese Datei erwartet? Kommt sie von einer vertrauenswürdigen Quelle?'],
+  5:['Social Engineering bedeutet, Menschen durch Manipulation zu täuschen statt Computer zu hacken.','Hacker nutzen Zeitdruck, Autorität und Angst um euch zu manipulieren.','Wichtigste Regel: Niemals Passwörter weitergeben – nicht mal an angebliche Administratoren!','Echte Firmen und Behörden fragen NIEMALS per Chat oder E-Mail nach Passwörtern oder Kreditkartendaten.','Bei Verdacht: Immer auflegen, direkt zurückrufen und Erwachsene informieren!'],
+  6:['Verschlüsselung schützt eure Daten so, dass nur Berechtigte sie lesen können.','Der Caesar-Cipher ist eine der ältesten Verschlüsselungsmethoden – benannt nach Julius Caesar.','Beim Caesar-Cipher wird jeder Buchstabe um eine feste Anzahl Stellen verschoben.','Moderne Verschlüsselung wie AES nutzt komplexere mathematische Verfahren.','HTTPS bedeutet, dass eure Verbindung mit einer Webseite verschlüsselt ist – immer auf das Schloss-Symbol achten!'],
+};
+
+function playStationVideo(id){
+  const screenEl=document.getElementById('vid'+id+'Content');
+  const btn=document.getElementById('vid'+id+'Btn');
+  if(!screenEl||!btn) return;
+  if(currentSpeech) window.speechSynthesis.cancel();
+  const lines=stationVideos[id]||[];
+  screenEl.innerHTML='';
+  btn.textContent='■';
+  let lineIdx=0;
+  const fill=document.getElementById('vid'+id+'Fill');
+  const timeEl=document.getElementById('vid'+id+'Time');
+  // TTS
+  const fullText=lines.join(' ');
+  const utt=new SpeechSynthesisUtterance(fullText);
+  utt.lang='de-DE'; utt.rate=0.85; utt.pitch=0.8;
+  const voices=window.speechSynthesis.getVoices();
+  const v=voices.find(v=>v.lang.startsWith('de'));
+  if(v) utt.voice=v;
+  currentSpeech=utt;
+  window.speechSynthesis.speak(utt);
+  // Animate
+  const total=lines.length*2200;
+  let elapsed=0;
+  const ivl=setInterval(()=>{
+    if(lineIdx>=lines.length){clearInterval(ivl);btn.textContent='▶';return;}
+    const div=document.createElement('div');
+    div.className='terminal-line';
+    div.style.animationDelay='0s';
+    div.innerHTML='<span style="color:#00d4ff;">▸</span> '+lines[lineIdx];
+    screenEl.appendChild(div);
+    screenEl.scrollTop=screenEl.scrollHeight;
+    lineIdx++;
+    elapsed+=2200;
+    if(fill) fill.style.width=Math.min(100,(elapsed/total)*100)+'%';
+    if(timeEl){const s=Math.round(elapsed/1000);timeEl.textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);}
+  },2200);
+  btn.onclick=()=>{window.speechSynthesis.cancel();clearInterval(ivl);btn.textContent='▶';btn.onclick=()=>playStationVideo(id);};
+}
+
+// ============================================================
+// BUILD STATION HTML
+// ============================================================
+function buildStation(id,saved){
+  switch(id){
+    case 1: return buildS1();
+    case 2: return buildS2();
+    case 3: return buildS3();
+    case 4: return buildS4();
+    case 5: return buildS5();
+    case 6: return buildS6();
+  }
+  return '<p>Unbekannte Station</p>';
+}
+
+function initStationLogic(id,saved){
+  switch(id){
+    case 1: s1Pts=stationProgress[1]?.points_earned||0;updateStationPts(1,s1Pts);break;
+    case 2: s2Pts=stationProgress[2]?.points_earned||0;updateStationPts(2,s2Pts);initWifi();break;
+    case 3: s3Pts=stationProgress[3]?.points_earned||0;updateStationPts(3,s3Pts);break;
+    case 4: s4Pts=stationProgress[4]?.points_earned||0;updateStationPts(4,s4Pts);break;
+    case 5: s5Pts=stationProgress[5]?.points_earned||0;updateStationPts(5,s5Pts);loadScenario(0);break;
+    case 6: s6Pts=stationProgress[6]?.points_earned||0;updateStationPts(6,s6Pts);initCrypto();break;
+  }
+}
+
+function videoBlock(id){
+  return `<div class="theory-block"><div class="theory-header">🎬 ERKLÄRVIDEO</div>
+  <div class="ai-video-player">
+    <div class="video-screen"><div class="vscanline"></div><div id="vid${id}Content" style="color:#00ff41;font-family:var(--font-mono);font-size:.8rem;">▶ Drücke Play zum Starten...</div></div>
+    <div class="video-controls">
+      <button class="vid-btn" id="vid${id}Btn" onclick="playStationVideo(${id})">▶</button>
+      <div class="vid-progress" id="vid${id}Prog"><div class="vid-progress-fill" id="vid${id}Fill"></div></div>
+      <span class="vid-time" id="vid${id}Time">0:00</span>
+    </div>
+  </div></div>`;
+}
+
+// ============================================================
+// STATION 1 – PASSWORD LAB
+// ============================================================
+let s1Task2Done=false,s1Task3Done=false;
+function buildS1(){
+  return videoBlock(1)+`
+  <div class="task-area">
+    <div class="task-title">🔬 AUFGABE 1: Passwort-Analysator <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+50 Pts für Analyse</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:12px;">Gib verschiedene Passwörter ein und beobachte die Sicherheitsmetriken und Knackzeit:</p>
+    <div class="pw-cracker">
+      <input id="pwAnalyze" type="text" placeholder="Passwort hier eingeben..." oninput="analyzePwLive(this.value)"
+        style="width:100%;padding:9px;background:#111;border:1px solid #222;border-radius:5px;color:#00d4ff;font-family:var(--font-mono);font-size:.95rem;margin-bottom:12px;outline:none;">
+      <div class="pw-meter-row"><div class="pw-meter-label">Länge</div><div class="pw-meter-bar"><div class="pw-meter-fill" id="m1" style="background:#00d4ff;"></div></div></div>
+      <div class="pw-meter-row"><div class="pw-meter-label">Großbuchstaben</div><div class="pw-meter-bar"><div class="pw-meter-fill" id="m2" style="background:#39ff8f;"></div></div></div>
+      <div class="pw-meter-row"><div class="pw-meter-label">Zahlen</div><div class="pw-meter-bar"><div class="pw-meter-fill" id="m3" style="background:#ffd93d;"></div></div></div>
+      <div class="pw-meter-row"><div class="pw-meter-label">Sonderzeichen</div><div class="pw-meter-bar"><div class="pw-meter-fill" id="m4" style="background:#ff3a6e;"></div></div></div>
+      <div class="pw-meter-row"><div class="pw-meter-label">Gesamtstärke</div><div class="pw-meter-bar"><div class="pw-meter-fill" id="m5" style="background:#a855f7;"></div></div></div>
+      <div class="crack-time-display">
+        <div class="crack-time-value" id="crackTime">—</div>
+        <div class="crack-time-label">Geschätzte Brute-Force-Knackzeit (10 Mrd. Versuche/Sek.)</div>
+      </div>
+    </div>
+    <div class="task-title mt-16">🏆 AUFGABE 2: Welches ist das sicherste Passwort? <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+50 Pts</span></div>
+    <div class="pw-challenge-grid" id="pwGrid">
+      <div class="pw-option" onclick="selectPwOption(this,'bad')"><div class="pw-option-value">hund123</div><div class="pw-option-hint">Tier + Zahl – extrem häufig</div></div>
+      <div class="pw-option" onclick="selectPwOption(this,'bad')"><div class="pw-option-value">Sommer2024!</div><div class="pw-option-hint">Jahreszeit + Jahr – vorhersehbar</div></div>
+      <div class="pw-option" onclick="selectPwOption(this,'good')"><div class="pw-option-value">Xk#9mP!2vQz@</div><div class="pw-option-hint">Zufällig, lang, alle Zeichen</div></div>
+      <div class="pw-option" onclick="selectPwOption(this,'bad')"><div class="pw-option-value">password</div><div class="pw-option-hint">Weltweit häufigstes Passwort 💀</div></div>
+    </div>
+    <div class="answer-feedback" id="pwFb2"></div>
+    <div class="task-title mt-16">🧩 AUFGABE 3: Erstelle ein sicheres Passwort <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+50 Pts</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Erstellt ein Passwort das <strong>alle 4 Kriterien</strong> erfüllt:</p>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;">
+      <div id="c1" style="padding:5px 10px;border-radius:20px;font-size:.72rem;border:1px solid rgba(255,58,110,.3);color:var(--danger);font-family:var(--font-mono);">✗ Min. 12 Zeichen</div>
+      <div id="c2" style="padding:5px 10px;border-radius:20px;font-size:.72rem;border:1px solid rgba(255,58,110,.3);color:var(--danger);font-family:var(--font-mono);">✗ Großbuchstaben</div>
+      <div id="c3" style="padding:5px 10px;border-radius:20px;font-size:.72rem;border:1px solid rgba(255,58,110,.3);color:var(--danger);font-family:var(--font-mono);">✗ Zahl enthalten</div>
+      <div id="c4" style="padding:5px 10px;border-radius:20px;font-size:.72rem;border:1px solid rgba(255,58,110,.3);color:var(--danger);font-family:var(--font-mono);">✗ Sonderzeichen</div>
+    </div>
+    <input type="text" id="myPwInput" placeholder="Dein sicheres Passwort..." oninput="checkMyPw(this.value)"
+      style="width:100%;padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-mono);font-size:.88rem;outline:none;">
+    <div id="myPwFb" style="margin-top:6px;font-family:var(--font-mono);font-size:.72rem;color:var(--text2);"></div>
+    <div style="margin-top:12px;"><button class="hint-btn" onclick="toggleHint('h1')">💡 Tipp anzeigen</button></div>
+    <div class="hint-box" id="h1">Tipp: Denk an einen Satz! "Ich gehe jeden Tag 3x zur Schule!" → "IgjT3xzS!" – dann noch verlängern und Sonderzeichen hinzufügen.</div>
+  </div>`;
+}
+
+function analyzePwLive(pw){
+  if(!pw){['m1','m2','m3','m4','m5'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width='0%';});const ct=document.getElementById('crackTime');if(ct)ct.textContent='—';return;}
+  const hasU=/[A-Z]/.test(pw),hasN=/[0-9]/.test(pw),hasS=/[^a-zA-Z0-9]/.test(pw);
+  const m1=document.getElementById('m1'),m2=document.getElementById('m2'),m3=document.getElementById('m3'),m4=document.getElementById('m4'),m5=document.getElementById('m5'),ct=document.getElementById('crackTime');
+  if(m1)m1.style.width=Math.min(100,(pw.length/20)*100)+'%';
+  if(m2)m2.style.width=hasU?'100%':'0%';
+  if(m3)m3.style.width=hasN?'100%':'0%';
+  if(m4)m4.style.width=hasS?'100%':'0%';
+  let str=0;if(pw.length>=8)str+=20;if(pw.length>=12)str+=20;if(pw.length>=16)str+=10;if(hasU)str+=15;if(hasN)str+=15;if(hasS)str+=20;
+  if(m5)m5.style.width=Math.min(100,str)+'%';
+  let cs=26;if(hasU)cs+=26;if(hasN)cs+=10;if(hasS)cs+=32;
+  const sec=Math.pow(cs,pw.length)/1e10;
+  let ts;
+  if(sec<1)ts='Sofort 💀';else if(sec<60)ts=Math.round(sec)+' Sekunden 😰';else if(sec<3600)ts=Math.round(sec/60)+' Minuten ⚠';
+  else if(sec<86400)ts=Math.round(sec/3600)+' Stunden';else if(sec<31536000)ts=Math.round(sec/86400)+' Tage';
+  else if(sec<3.15e10)ts=Math.round(sec/31536000)+' Jahre 🔐';
+  else ts=(sec/31536000/1000).toLocaleString('de')+' Jahrtausende 🛡';
+  if(ct)ct.textContent=ts;
+  // Give pts for using analyzer
+  if(pw.length>=8&&!s1Task2Done&&str>40){s1Pts=Math.max(s1Pts,20);updateStationPts(1,s1Pts);}
+}
+
+function selectPwOption(el,val){
+  document.querySelectorAll('.pw-option').forEach(e=>e.classList.remove('selected-good','selected-bad'));
+  const fb=document.getElementById('pwFb2');
+  if(val==='good'){
+    el.classList.add('selected-good');
+    fb.className='answer-feedback feedback-correct';
+    fb.innerHTML='✅ Richtig! "Xk#9mP!2vQz@" ist das stärkste – es enthält alle Zeichentypen, ist lang und völlig zufällig. Wäre in Jahrtausenden nicht zu knacken!';
+    if(!s1Task2Done){s1Task2Done=true;s1Pts+=50;updateStationPts(1,s1Pts);}
+  } else {
+    el.classList.add('selected-bad');
+    fb.className='answer-feedback feedback-wrong';
+    fb.innerHTML='❌ Nicht das sicherste! Schau dir alle Optionen an – welches ist wirklich zufällig und enthält alle Zeichentypen?';
+  }
+  fb.style.display='block';
+}
+
+function checkMyPw(pw){
+  const c1=pw.length>=12,c2=/[A-Z]/.test(pw),c3=/[0-9]/.test(pw),c4=/[^a-zA-Z0-9]/.test(pw);
+  const setC=(id,ok,txt)=>{const el=document.getElementById(id);if(el){el.innerHTML=(ok?'✓':'✗')+' '+txt;el.style.color=ok?'var(--accent3)':'var(--danger)';el.style.borderColor=ok?'rgba(57,255,143,.3)':'rgba(255,58,110,.3)';}};
+  setC('c1',c1,'Min. 12 Zeichen');setC('c2',c2,'Großbuchstaben');setC('c3',c3,'Zahl enthalten');setC('c4',c4,'Sonderzeichen');
+  const fb=document.getElementById('myPwFb');
+  if(c1&&c2&&c3&&c4){if(fb){fb.textContent='🎉 Perfekt! Alle Kriterien erfüllt!';fb.style.color='var(--accent3)';}if(!s1Task3Done){s1Task3Done=true;s1Pts+=50;updateStationPts(1,s1Pts);}}
+  else if(fb){fb.textContent=[c1,c2,c3,c4].filter(Boolean).length+'/4 Kriterien erfüllt';fb.style.color='var(--warn)';}
+}
+
+// ============================================================
+// STATION 2 – WIFI
+// ============================================================
+const wifiNets=[
+  {name:'BRG_Innsbruck_Schule',sig:'📶📶📶',sec:true,type:'WPA2-Enterprise',desc:'Schulnetzwerk – Zertifikat verifiziert',safe:true},
+  {name:'FREE_PUBLIC_WIFI',sig:'📶📶📶📶',sec:false,type:'Offen – KEIN Passwort!',desc:'Unverschlüsselt – jeder kann mitlesen!',safe:false},
+  {name:'A1_Hotspot_Innsbruck',sig:'📶📶',sec:true,type:'WPA2',desc:'Öffentlicher Hotspot – unbekannter Betreiber',safe:false},
+  {name:'iPhone von Lukas',sig:'📶📶📶',sec:true,type:'WPA2',desc:'Privater Hotspot – unbekannte Person',safe:false},
+  {name:'Evil_Twin_BRG',sig:'📶📶📶📶',sec:true,type:'WPA2',desc:'⚠ Gefälschtes BRG-Netz – Man-in-the-Middle!',safe:false},
+  {name:'BRG_Lehrer_Intern',sig:'📶',sec:true,type:'WPA3',desc:'Lehrernetz – kein Schülerzugang',safe:false},
+];
+let wifiSelected=null,wifiDone=false;
+let wifiQuizAnswered=[false,false,false,false];
+const wifiQuizData=[
+  {q:'Ein offenes WLAN ohne Passwort ist sicher, wenn man nur normale Websites besucht.',correct:'falsch',expl:'Falsch! Ohne Verschlüsselung kann jeder im Netzwerk den Datenverkehr abfangen.'},
+  {q:'WPA3 ist sicherer als WPA2.',correct:'richtig',expl:'Richtig! WPA3 bietet bessere Sicherheit, insbesondere bei schwachen Passwörtern.'},
+  {q:'Ein Netzwerk mit dem gleichen Namen wie das Schulnetz ist immer das echte.',correct:'falsch',expl:'Falsch! Das nennt man Evil-Twin-Angriff – Hacker erstellen gefälschte Netzwerke mit demselben Namen.'},
+  {q:'Über ein öffentliches WLAN sollte man keine Passwörter oder Bankdaten eingeben.',correct:'richtig',expl:'Richtig! Öffentliche Netzwerke sind unsicher – nutzt immer VPN oder wartet auf ein sicheres Netz.'},
+];
+
+function buildS2(){
+  return videoBlock(2)+`
+  <div class="task-area">
+    <div class="task-title">💻 AUFGABE 1: Wähle das richtige WLAN! <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+80 Pts</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:12px;">Du bist in der Schule. Wähle das <strong>sichere</strong> Schulnetzwerk und verbinde dich:</p>
+    <div class="wifi-simulator">
+      <div class="wifi-taskbar">
+        <span>🪟 Windows 11 – BRG Schüler-PC</span>
+        <div style="display:flex;gap:9px;align-items:center;"><span>📶</span><span>🔋 87%</span><span id="wifiClock">--:--</span></div>
+      </div>
+      <div class="wifi-panel">
+        <div class="wifi-panel-title">WLAN — Verfügbare Netzwerke</div>
+        <div id="wifiList">${wifiNets.map((n,i)=>`
+          <div class="wifi-network" onclick="selectWifi(${i})" id="wn${i}">
+            <div style="font-size:1.1rem;">${n.sig}</div>
+            <div class="wifi-info"><div class="wifi-name">${n.name}</div><div class="wifi-details">${n.type} · ${n.desc}</div></div>
+            <div style="font-size:.9rem;">${n.sec?'🔒':'🔓'}</div>
+          </div>`).join('')}</div>
+        <button class="wifi-connect-btn" onclick="connectWifi()">Verbinden</button>
+        <div class="wifi-connecting-anim" id="wifiConnecting"><div style="font-size:1.3rem;margin-bottom:7px;">📡</div><div>Verbinde mit <span id="connectingTo">...</span><span class="wifi-dots"><span>.</span><span>.</span><span>.</span></span></div></div>
+        <div class="wifi-result" id="wifiResult"></div>
+      </div>
+    </div>
+    <div class="task-title mt-16">🧪 AUFGABE 2: Wahr oder Falsch? <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">4 × 10 Pts</span></div>
+    <div id="wifiQuiz">${wifiQuizData.map((q,i)=>`
+      <div id="wq${i}" style="background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:9px;">
+        <div style="font-size:.83rem;margin-bottom:9px;">${i+1}. ${q.q}</div>
+        <div style="display:flex;gap:7px;">
+          <button id="wqb${i}r" onclick="answerWifi(${i},'richtig')" style="flex:1;padding:7px;border-radius:5px;border:1px solid rgba(57,255,143,.28);background:transparent;color:#39ff8f;cursor:pointer;font-family:var(--font-mono);font-size:.78rem;transition:.2s;">✓ Richtig</button>
+          <button id="wqb${i}f" onclick="answerWifi(${i},'falsch')" style="flex:1;padding:7px;border-radius:5px;border:1px solid rgba(255,58,110,.28);background:transparent;color:#ff3a6e;cursor:pointer;font-family:var(--font-mono);font-size:.78rem;transition:.2s;">✗ Falsch</button>
+        </div>
+        <div id="wqfb${i}" style="display:none;margin-top:7px;font-size:.76rem;font-family:var(--font-mono);padding:7px;border-radius:5px;"></div>
+      </div>`).join('')}</div>
+    <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h2')">💡 Tipp anzeigen</button></div>
+    <div class="hint-box" id="h2">Tipp: Schau genau auf den Netzwerktyp und den Betreiber! "Evil_Twin_BRG" klingt wie das Schulnetzwerk, ist aber gefälscht. Nur "WPA2-Enterprise" mit Schulzertifikat ist das echte Schulnetzwerk!</div>
+  </div>`;
+}
+
+function initWifi(){
+  const cl=document.getElementById('wifiClock');
+  if(cl){const upd=()=>{const n=new Date();cl.textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');};upd();setInterval(upd,1000);}
+}
+function selectWifi(i){wifiSelected=i;document.querySelectorAll('.wifi-network').forEach((el,idx)=>el.classList.toggle('selected-network',idx===i));}
+function connectWifi(){
+  if(wifiSelected===null)return;
+  const net=wifiNets[wifiSelected];
+  const conn=document.getElementById('wifiConnecting'),res=document.getElementById('wifiResult'),list=document.getElementById('wifiList');
+  conn.style.display='block';document.getElementById('connectingTo').textContent=net.name;
+  list.style.opacity='.4';res.style.display='none';
+  setTimeout(()=>{
+    conn.style.display='none';list.style.opacity='1';res.style.display='block';
+    if(net.safe){
+      res.className='wifi-result safe';
+      res.innerHTML='✅ VERBUNDEN: '+net.name+'<br><br>🎉 Ausgezeichnet! Das ist das offizielle Schulnetzwerk mit verifizierten Sicherheitszertifikaten. Eure Verbindung ist verschlüsselt und sicher!';
+      if(s2Pts<80){s2Pts=80;updateStationPts(2,s2Pts);}
+    } else {
+      res.className='wifi-result hacked';
+      if(net.name==='Evil_Twin_BRG') res.innerHTML='🚨 HACK ERKANNT! "'+net.name+'" ist ein gefälschtes Netzwerk! Ein Angreifer hat dasselbe SSID wie das Schulnetz erstellt (Evil-Twin-Angriff). Alle eure Daten werden abgefangen!';
+      else if(!net.sec) res.innerHTML='⚠ UNSICHERES NETZWERK! "'+net.name+'" ist offen und völlig unverschlüsselt. Jeder kann euren Datenverkehr mitlesen!';
+      else res.innerHTML='⚠ FALSCHES NETZWERK! "'+net.name+'" ist nicht das offizielle Schulnetzwerk. Achtet auf "WPA2-Enterprise" und das Schulzertifikat!';
+    }
+  },2600);
+}
+function answerWifi(i,ans){
+  const q=wifiQuizData[i];const correct=ans===q.correct;
+  const fb=document.getElementById('wqfb'+i);const box=document.getElementById('wq'+i);
+  ['r','f'].forEach(c=>{const b=document.getElementById('wqb'+i+c);if(b){b.style.opacity='.5';b.style.cursor='default';b.onclick=null;}});
+  fb.style.display='block';
+  if(correct){fb.style.background='rgba(57,255,143,.08)';fb.style.color='var(--accent3)';fb.textContent='✅ Richtig! '+q.expl;box.style.borderColor='rgba(57,255,143,.35)';if(!wifiQuizAnswered[i]){wifiQuizAnswered[i]=true;s2Pts+=10;updateStationPts(2,s2Pts);}}
+  else{fb.style.background='rgba(255,58,110,.08)';fb.style.color='var(--danger)';fb.textContent='❌ Falsch! '+q.expl;box.style.borderColor='rgba(255,58,110,.35)';}
+}
+
+// ============================================================
+// STATION 3 – PHISHING
+// ============================================================
+const emails=[
+  {id:0,from:'direktion@brg-innsbruck.at',disp:'Direktion BRG Innsbruck',subj:'Wichtige Mitteilung: Schulausflug am Donnerstag',prev:'Liebe Schülerinnen, wie besprochen findet unser Ausflug...',
+   body:'Liebe Schülerinnen und Schüler der 3b,<br><br>wie in der letzten Stunde besprochen, findet unser geplanter Ausflug ins Tiroler Landesmuseum Ferdinandeum am Donnerstag, den 18. April statt.<br><br>Bitte bringt <strong>12 Euro Eintrittsgeld</strong> sowie eure Jausenbox mit. Abfahrt ist um 8:15 Uhr vom Haupteingang.<br><br>Schöne Grüße,<br>Mag. Gruber',
+   phish:false,expl:'✅ ECHTE E-MAIL: Bekannte Schuladresse, sachlicher Inhalt, kein Druck, keine verdächtigen Links, keine Anfrage nach persönlichen Daten.'},
+  {id:1,from:'noreply@pay-pal-sicherheit.net',disp:'PayPal Sicherheitscenter ⚠',subj:'DRINGEND: Ihr PayPal-Konto wurde gesperrt!',prev:'Wir haben ungewöhnliche Aktivitäten auf Ihrem Konto...',
+   body:'Sehr geehrter Kunde,<br><br>wir haben <strong style="color:#ff4444;">ungewöhnliche Aktivitäten</strong> auf Ihrem Konto festgestellt!<br><br>Ihr Konto wurde vorübergehend <strong style="color:#ff0000;">GESPERRT</strong>. Um die Sperrung aufzuheben, müssen Sie <strong>innerhalb von 24 Stunden</strong> Ihre Daten bestätigen:<br><br><a href="#" class="email-link" onclick="return false;">🔗 Jetzt bestätigen → http://pay-pa1.verify-acc.xyz/confirm</a><br><br>Wenn Sie nicht handeln, wird Ihr Konto dauerhaft gelöscht!<br><br>PayPal Sicherheitsteam',
+   phish:true,expl:'🎣 PHISHING! Red Flags: Falsche Domain "pay-pal-sicherheit.net" statt paypal.com · Drohung "24 Stunden" · Verdächtige URL ".xyz" · PayPal sperrt Konten nie per E-Mail ohne Warnung.'},
+  {id:2,from:'schulbibliothek@brg-innsbruck.at',disp:'Schulbibliothek BRG Innsbruck',subj:'Erinnerung: Ausgeliehene Bücher sind überfällig',prev:'Hallo, folgende Bücher müssen bis Freitag zurückgegeben...',
+   body:'Hallo!<br><br>Wir möchten dich daran erinnern, dass folgende Bücher bereits überfällig sind:<br><br>• <em>"Harry Potter und der Halbblutprinz"</em> (fällig seit 12.03.)<br>• <em>"Das Dschungelbuch"</em> (fällig seit 19.03.)<br><br>Bitte gib die Bücher bis Freitag in der Bibliothek (Zimmer 14) ab. Bei Fragen einfach vorbeikommen!<br><br>Viele Grüße, das Bibliotheksteam',
+   phish:false,expl:'✅ ECHTE E-MAIL: Bekannte Schuladresse, spezifische Büchertitel, kein Druck, keine Links, keine Anfrage nach Daten oder Zahlungen.'},
+  {id:3,from:'microsoft-security@gmail.com',disp:'Microsoft Security Center 🛡',subj:'WARNUNG: 5 Viren auf Ihrem Computer gefunden!!!',prev:'SICHERHEITSALARM! Ihr Computer wurde infiziert...',
+   body:'<strong style="color:#ff0000;">⚠⚠⚠ KRITISCHE SICHERHEITSWARNUNG ⚠⚠⚠</strong><br><br>Unser Scansystem hat auf Ihrem Computer <strong>5 GEFÄHRLICHE VIREN</strong> entdeckt!<br><br>Ihre Passwörter, persönliche Daten und Bankdaten sind in GEFAHR!<br><br><a href="#" class="email-link" onclick="return false;">⬇ GRATIS VIRUS-ENTFERNER HERUNTERLADEN</a><br><br>Handeln Sie SOFORT oder Ihr Computer wird dauerhaft beschädigt!<br><br>Rufen Sie uns an: <strong>+43 800 123 456</strong> (24/7, kostenlos)<br><br><em>Microsoft Support</em>',
+   phish:true,expl:'🎣 PHISHING! Red Flags: Microsoft schreibt nie von @gmail.com · Übertriebene Panikmache · Verdächtiger Downloadlink · Telefonnummer für "kostenlosen" Support · Zu viele Ausrufezeichen!!!'},
+];
+let phishAnswers={},s3Task2Done=false;
+function buildS3(){
+  return videoBlock(3)+`
+  <div class="task-area">
+    <div class="task-title">📧 AUFGABE: E-Mail Prüfung – Echt oder Phishing? <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">4 × 35 Pts</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:12px;">Lest jede E-Mail sorgfältig. Klickt auf eine E-Mail und bewertet: Echt oder Phishing?</p>
+    <div class="email-client">
+      <div class="email-toolbar"><div class="email-toolbar-btn">↩ Antworten</div><div class="email-toolbar-btn">↪ Weiterleiten</div><div class="email-toolbar-btn">🗑 Löschen</div></div>
+      <div class="email-layout">
+        <div class="email-sidebar">
+          <div class="email-folder active">📥 Posteingang <span style="background:var(--danger);color:#fff;padding:1px 5px;border-radius:9px;font-size:.62rem;">${emails.length}</span></div>
+          <div class="email-folder">📤 Gesendet</div><div class="email-folder">🗑 Papierkorb</div>
+          <div style="margin-top:12px;padding:9px;background:rgba(0,212,255,.05);border-radius:5px;font-size:.7rem;color:var(--text2);font-family:var(--font-mono);">
+            Bewertet: <span id="phishCount">0/4</span><br>✅ Korrekt: <span id="phishOk" style="color:var(--accent3);">0</span><br>❌ Falsch: <span id="phishFail" style="color:var(--danger);">0</span>
+          </div>
+        </div>
+        <div>
+          <div id="emailList">${emails.map((e,i)=>`<div class="email-item unread" id="eitem${i}" onclick="openEmail(${i})"><div class="email-from">${e.disp} &lt;${e.from}&gt;</div><div class="email-subject">${e.subj}</div><div class="email-preview">${e.prev}</div></div>`).join('')}</div>
+          <div id="emailView" style="padding:18px;color:var(--text2);font-size:.82rem;text-align:center;padding-top:30px;">← Klicke auf eine E-Mail um sie zu lesen</div>
+        </div>
+      </div>
+    </div>
+    <div class="answer-feedback" id="phishSummary" style="margin-top:12px;"></div>
+    <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h3')">💡 Tipp anzeigen</button></div>
+    <div class="hint-box" id="h3">Tipp: Schau immer auf die echte Absender-E-Mail-Adresse (nicht nur den Anzeigenamen!), achte auf Druckaufbau wie "sofort" oder "24 Stunden", prüfe Links auf verdächtige Domains, und frage: "Wurde ich danach gefragt?"</div>
+  </div>`;
+}
+function openEmail(i){
+  document.querySelectorAll('.email-item').forEach((el,idx)=>{el.classList.toggle('selected',idx===i);el.classList.remove('unread');});
+  const e=emails[i];const ans=phishAnswers[i];const view=document.getElementById('emailView');
+  view.innerHTML=`<div class="email-view active">
+    <div class="email-header-view"><div class="email-from-view">Von: <strong>${e.disp}</strong> &lt;${e.from}&gt;</div><div class="email-subj-view">${e.subj}</div></div>
+    <div class="email-body">${e.body}</div>
+    ${ans===undefined?`<div class="phishing-verdict"><button class="verdict-btn verdict-real" onclick="judgeEmail(${i},false)">✅ ECHTE E-MAIL</button><button class="verdict-btn verdict-fake" onclick="judgeEmail(${i},true)">🎣 PHISHING!</button></div>`:`
+    <div style="margin-top:12px;padding:12px;border-radius:7px;border:1px solid ${ans===e.phish?'rgba(57,255,143,.3)':'rgba(255,58,110,.3)'};background:${ans===e.phish?'rgba(57,255,143,.07)':'rgba(255,58,110,.07)'};color:${ans===e.phish?'var(--accent3)':'var(--danger)'};">
+      <strong>${ans===e.phish?'✅ Korrekt!':'❌ Falsch!'}</strong><br><span style="font-size:.78rem;display:block;margin-top:4px;">${e.expl}</span>
+    </div>`}
+  </div>`;
+}
+function judgeEmail(i,isPhish){
+  const e=emails[i];const correct=e.phish===isPhish;
+  phishAnswers[i]=isPhish;
+  if(correct){s3Pts+=35;updateStationPts(3,s3Pts);}
+  const tot=Object.keys(phishAnswers).length;
+  const ok=Object.keys(phishAnswers).filter(k=>phishAnswers[k]===emails[parseInt(k)].phish).length;
+  document.getElementById('phishCount').textContent=tot+'/4';
+  document.getElementById('phishOk').textContent=ok;
+  document.getElementById('phishFail').textContent=tot-ok;
+  const item=document.getElementById('eitem'+i);
+  if(item)item.style.borderLeft='3px solid '+(correct?'var(--accent3)':'var(--danger)');
+  openEmail(i);
+  if(tot>=4){const s=document.getElementById('phishSummary');s.className='answer-feedback '+(ok>=3?'feedback-correct':'feedback-wrong');s.innerHTML='🏁 Ergebnis: '+ok+'/4 korrekt! '+(ok>=3?'🎉 Super – ihr erkennt Phishing wie Profis!':'⚠ Übt weiter – Phishing ist gefährlich!');s.style.display='block';}
+}
+
+// ============================================================
+// STATION 4 – MALWARE
+// ============================================================
+const files=[
+  {n:'Hausaufgaben.docx',ic:'📄',sz:'42 KB',t:'Word',mal:false},
+  {n:'Gratis_Spiel_CRACK.exe',ic:'💀',sz:'14.7 MB',t:'Executable',mal:true},
+  {n:'Foto_Ausflug.jpg',ic:'🖼️',sz:'3.2 MB',t:'Bild',mal:false},
+  {n:'invoice_final.pdf.exe',ic:'⚠️',sz:'891 KB',t:'Getarnte .exe',mal:true},
+  {n:'Notizen_Deutsch.txt',ic:'📝',sz:'8 KB',t:'Text',mal:false},
+  {n:'Keylogger_v3.vbs',ic:'💀',sz:'12 KB',t:'VB-Script',mal:true},
+  {n:'Musik_Mix.mp3',ic:'🎵',sz:'5.8 MB',t:'Audio',mal:false},
+  {n:'SystemUpdate32.bat',ic:'🔴',sz:'2 KB',t:'Batch-Datei',mal:true},
+  {n:'Mathe_LK_Zusammenfassung.pdf',ic:'📕',sz:'1.2 MB',t:'PDF',mal:false},
+  {n:'WinRAR_Activator.zip',ic:'📦',sz:'88 KB',t:'Archiv',mal:true},
+  {n:'Stundenplan.xlsx',ic:'📊',sz:'156 KB',t:'Excel',mal:false},
+  {n:'free_robux_generator.html',ic:'🎮',sz:'44 KB',t:'HTML',mal:true},
+];
+let fileMarks={},malwareCheckDone=false,malwareExplainDone=false;
+function buildS4(){
+  return videoBlock(4)+`
+  <div class="task-area">
+    <div class="task-title">🦠 AUFGABE 1: Finde alle Malware-Dateien! <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+80 Pts</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:12px;">Im Schul-PC wurden verdächtige Dateien entdeckt. Markiert alle <strong>schädlichen Dateien</strong> mit ☠ und sichere mit ✓. Vorsicht – nicht alles sieht auf den ersten Blick gefährlich aus!</p>
+    <div class="file-explorer">
+      <div class="fe-toolbar"><span>📁</span><span class="fe-path">C:\\Benutzer\\Schüler\\Downloads</span><span style="margin-left:auto;font-family:var(--font-mono);font-size:.7rem;" id="malCounter">Markiert: 0 / ${files.filter(f=>f.mal).length} Malware</span></div>
+      <div class="fe-layout">
+        <div class="fe-sidebar"><div class="fe-folder active">📥 Downloads</div><div class="fe-folder">🖥️ Desktop</div><div class="fe-folder">📄 Dokumente</div><div class="fe-folder">🖼️ Bilder</div></div>
+        <div class="fe-grid" id="fileGrid">${files.map((f,i)=>`
+          <div class="fe-item ${f.mal?'suspicious':''}" id="fi${i}">
+            <div class="fe-icon">${f.ic}</div>
+            <div class="fe-name">${f.n}</div>
+            <div class="fe-size">${f.sz} · ${f.t}</div>
+            <div class="fe-mark-btns">
+              <button class="fe-btn fe-btn-safe" onclick="markFile(event,${i},'safe')">✓ OK</button>
+              <button class="fe-btn fe-btn-danger" onclick="markFile(event,${i},'mal')">☠ Virus</button>
+            </div>
+          </div>`).join('')}</div>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="checkMalware()">🔍 Analyse starten</button>
+    <div class="answer-feedback" id="malFb"></div>
+    <div class="task-title mt-16">🎓 AUFGABE 2: Erkläre die Gefahr <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+20 Pts</span></div>
+    <p style="font-size:.83rem;color:var(--text2);margin-bottom:9px;">Was ist die gefährlichste Datei und warum? Beschreibe kurz den Angriff:</p>
+    <textarea id="malExplain" placeholder="Die gefährlichste Datei ist... weil..." oninput="checkMalExplain(this.value)"
+      style="width:100%;height:75px;padding:9px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-body);font-size:.83rem;resize:vertical;outline:none;"></textarea>
+    <div id="malExpFb" style="font-size:.72rem;color:var(--text2);margin-top:4px;font-family:var(--font-mono);"></div>
+    <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h4')">💡 Tipp anzeigen</button></div>
+    <div class="hint-box" id="h4">Tipp: Gefährliche Dateiendungen sind .exe, .bat, .vbs, .cmd, .scr. Doppelte Endungen wie ".pdf.exe" sind ein klassischer Trick! "CRACK", "Activator", "Keygen" und "free_[etwas]" sind fast immer Malware.</div>
+  </div>`;
+}
+function markFile(e,i,type){
+  e.stopPropagation();
+  const el=document.getElementById('fi'+i);
+  el.classList.remove('marked-malware','marked-safe');
+  el.classList.add(type==='mal'?'marked-malware':'marked-safe');
+  fileMarks[i]=type;
+  const cnt=Object.keys(fileMarks).filter(k=>fileMarks[k]==='mal').length;
+  const el2=document.getElementById('malCounter');
+  if(el2)el2.textContent='Markiert: '+cnt+' / '+files.filter(f=>f.mal).length+' Malware';
+}
+function checkMalware(){
+  const total=files.filter(f=>f.mal).length;
+  let correct=0,fp=0;
+  files.forEach((f,i)=>{
+    if(f.mal&&fileMarks[i]==='mal')correct++;
+    else if(!f.mal&&fileMarks[i]==='mal')fp++;
+  });
+  const fb=document.getElementById('malFb');
+  if(correct===total&&fp===0){
+    fb.className='answer-feedback feedback-correct';
+    fb.innerHTML='🎉 Perfekt! Alle '+total+' Malware-Dateien korrekt identifiziert und keine Fehlalarme! Ihr seid echte Sicherheitsexperten!';
+    if(!malwareCheckDone){malwareCheckDone=true;s4Pts+=80;updateStationPts(4,s4Pts);}
+  } else {
+    fb.className='answer-feedback feedback-wrong';
+    fb.innerHTML='❌ '+correct+'/'+total+' Malware-Dateien gefunden'+( fp>0?', '+fp+' Fehlalarme':'')+'. Schau nochmal genau hin – Dateiendungen sind entscheidend!';
+  }
+  fb.style.display='block';
+}
+function checkMalExplain(v){
+  const fb=document.getElementById('malExpFb');
+  if(v.length>=30){if(fb){fb.textContent='✓ Gute Antwort! ('+v.length+' Zeichen)';fb.style.color='var(--accent3)';}if(!malwareExplainDone){malwareExplainDone=true;s4Pts+=20;updateStationPts(4,s4Pts);}}
+  else if(fb){fb.textContent='Noch '+Math.max(0,30-v.length)+' Zeichen fehlen...';fb.style.color='var(--text2)';}
+}
+
+// ============================================================
+// STATION 5 – SOCIAL ENGINEERING
+// ============================================================
+const scenarios=[
+  {contact:'Max_Admin123',avatar:'👤',color:'#667eea',
+   ctx:'Du erhältst eine Direktnachricht von einem unbekannten Nutzer:',
+   msgs:[{f:'them',txt:'Hallo! Ich bin der neue IT-Administrator der Schule. Wir haben ein ernstes Problem mit deinem Account!',s:true},{f:'them',txt:'Dein Konto wurde möglicherweise gehackt – ich muss das SOFORT überprüfen!',s:true},{f:'me',txt:'Oh nein! Was soll ich tun?'},{f:'them',txt:'Kein Problem, ich kann das schnell beheben. Sag mir einfach dein Passwort – das ist offizielle Schulpolitik.',s:true},{f:'them',txt:'Beeile dich! In 5 Minuten verlierst du sonst deinen Zugang für immer! ⏰',s:true}],
+   flags:['Unbekannte Person bittet um Passwort','Künstlicher Zeitdruck ("sofort", "5 Minuten")','Behauptet Administrator zu sein ohne Beweis','Keine offizielle Schulkommunikation','IT-Admins fragen NIE nach Passwörtern'],
+   opts:[{t:'Passwort mitteilen – er ist ja angeblich Admin',ok:false},{t:'NICHT mitteilen, Nachricht blockieren und Lehrer informieren',ok:true},{t:'Erst fragen welchen Namen er hat, dann vielleicht mitteilen',ok:false},{t:'Ignorieren und hoffen dass es sich löst',ok:false}],
+   q:'Was ist die RICHTIGE Reaktion?'},
+  {contact:'Gewinnspiel_Official 🎁',avatar:'🎁',color:'#ff9500',
+   ctx:'Auf Instagram schreibt dir ein unbekanntes Konto:',
+   msgs:[{f:'them',txt:'🎉🎉 HERZLICHEN GLÜCKWUNSCH! Du wurdest als Gewinner unseres Gewinnspiels ausgewählt!'},{f:'them',txt:'Du hast ein iPhone 16 Pro im Wert von 1.299€ gewonnen! Wir brauchen nur kurz deine Adresse zur Lieferung.',s:true},{f:'me',txt:'Wow! Was genau braucht ihr?'},{f:'them',txt:'Name, Adresse, Geburtsdatum und die Kreditkartennummer deiner Eltern – nur für die kleine Versicherungsgebühr von 9,99€.',s:true},{f:'them',txt:'Das Angebot gilt NUR noch 10 Minuten! Antworte SOFORT sonst verfällt dein Gewinn! 🚨',s:true}],
+   flags:['Unerwarteter Gewinn ohne Teilnahme','Extremer Zeitdruck (10 Minuten)','Anfrage nach Kreditkartendaten','Anfrage nach persönlichen Daten inkl. Geburtsdatum','"Versicherungsgebühr" für angeblichen Gratis-Gewinn'],
+   opts:[{t:'Daten eingeben – das iPhone klingt super!',ok:false},{t:'Kreditkartennummer der Eltern weitergeben, ist ja nur wenig Geld',ok:false},{t:'NICHT antworten, Konto blockieren und Eltern informieren',ok:true},{t:'Nur Name und Adresse angeben, das ist ja kein Geheimnis',ok:false}],
+   q:'Was tust du in dieser Situation?'},
+];
+let selFlags={},socialAnswered={},currScen=0;
+function buildS5(){
+  return videoBlock(5)+`
+  <div class="task-area">
+    <div style="display:flex;gap:7px;margin-bottom:14px;">${scenarios.map((s,i)=>`<button id="scenBtn${i}" onclick="loadScenario(${i})" style="padding:7px 14px;border-radius:5px;border:1px solid var(--border);background:${i===0?'var(--accent)':'transparent'};color:${i===0?'#000':'var(--text2)'};cursor:pointer;font-family:var(--font-mono);font-size:.78rem;transition:.3s;">Szenario ${i+1}</button>`).join('')}</div>
+    <div id="scenArea"></div>
+  </div>`;
+}
+function loadScenario(i){
+  currScen=i;
+  document.querySelectorAll('[id^="scenBtn"]').forEach((b,idx)=>{b.style.background=idx===i?'var(--accent)':'transparent';b.style.color=idx===i?'#000':'var(--text2)';});
+  const s=scenarios[i];const flags=selFlags[i]||[];const answered=socialAnswered[i]!==undefined;
+  document.getElementById('scenArea').innerHTML=`
+  <div class="task-title">🕵️ SZENARIO ${i+1} <span style="float:right;font-family:var(--font-mono);font-size:.7rem;color:var(--accent4);font-weight:400;">+40 Flags +35 Antwort</span></div>
+  <p style="font-size:.82rem;color:var(--text2);margin-bottom:11px;">${s.ctx}</p>
+  <div class="chat-interface">
+    <div class="chat-header"><div class="chat-avatar" style="background:linear-gradient(135deg,${s.color},${s.color}88);">${s.avatar}</div><div><div class="chat-contact">${s.contact}</div><div class="chat-status">● Online</div></div></div>
+    <div class="chat-messages">${s.msgs.map(m=>`<div><div class="msg-sender">${m.f==='them'?s.contact:'Du'}</div><div class="msg msg-${m.f==='them'?'them':'me'}${m.s?' suspicious-msg':''}">${m.txt}${m.s?'<div style="font-size:.62rem;color:rgba(255,58,110,.55);margin-top:2px;">⚠ Verdächtig?</div>':''}</div></div>`).join('')}</div>
+  </div>
+  <div style="margin-top:13px;"><div style="font-family:var(--font-head);font-size:.95rem;letter-spacing:1px;color:var(--accent4);margin-bottom:9px;">🚩 AUFGABE 1: Erkenne alle Red Flags</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;">${s.flags.map((f,fi)=>`<div class="red-flag-chip${flags.includes(fi)?' selected':''}" id="rf${i}_${fi}" onclick="toggleFlag(${i},${fi})">🚩 ${f}</div>`).join('')}</div>
+  <div id="flagFb${i}" style="font-size:.75rem;color:var(--text2);font-family:var(--font-mono);">Wähle ${s.flags.length} Warnsignale</div>
+  <button class="submit-btn" style="margin-top:9px;padding:8px 16px;font-size:.83rem;" onclick="checkFlags(${i})">Red Flags prüfen</button></div>
+  <div style="margin-top:14px;"><div style="font-family:var(--font-head);font-size:.95rem;letter-spacing:1px;color:var(--accent4);margin-bottom:9px;">❓ AUFGABE 2: ${s.q}</div>
+  <div style="display:flex;flex-direction:column;gap:7px;">${s.opts.map((o,oi)=>`<button id="sopt${i}_${oi}" onclick="answerSocial(${i},${oi})" style="padding:9px 13px;text-align:left;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:.83rem;transition:.3s;font-family:var(--font-body);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="if(!this.dataset.done)this.style.borderColor='var(--border)'">${oi+1}. ${o.t}</button>`).join('')}</div>
+  <div id="socialFb${i}" style="display:none;margin-top:9px;padding:11px;border-radius:7px;font-size:.81rem;"></div></div>
+  <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h5')">💡 Tipp anzeigen</button></div>
+  <div class="hint-box" id="h5">Tipp: Echte Administratoren und seriöse Firmen fragen NIEMALS per Chat nach Passwörtern oder Kreditkartendaten. Bei Zeitdruck gilt: Immer langsamer werden, nicht schneller! Informiere Erwachsene bei solchen Nachrichten.</div>`;
+}
+function toggleFlag(si,fi){if(!selFlags[si])selFlags[si]=[];const a=selFlags[si];const p=a.indexOf(fi);if(p>=0)a.splice(p,1);else a.push(fi);const el=document.getElementById('rf'+si+'_'+fi);if(el)el.classList.toggle('selected');const fb=document.getElementById('flagFb'+si);if(fb)fb.textContent=a.length+' / '+scenarios[si].flags.length+' ausgewählt';}
+function checkFlags(i){const s=scenarios[i];const sel=selFlags[i]||[];const correct=sel.filter(f=>f>=0&&f<s.flags.length).length;const fb=document.getElementById('flagFb'+i);if(correct===s.flags.length&&sel.length===s.flags.length){if(fb){fb.textContent='✅ Perfekt! Alle Red Flags erkannt!';fb.style.color='var(--accent3)';}s5Pts+=40;updateStationPts(5,s5Pts);}else if(fb){fb.textContent='❌ '+correct+'/'+s.flags.length+' gefunden – such weiter!';fb.style.color='var(--warn)';}}
+function answerSocial(si,oi){if(socialAnswered[si]!==undefined)return;const s=scenarios[si];const opt=s.opts[oi];socialAnswered[si]=oi;document.querySelectorAll('[id^="sopt'+si+'_"]').forEach((b,i)=>{b.style.cursor='default';b.dataset.done='1';b.onmouseover=null;if(s.opts[i].ok){b.style.borderColor='rgba(57,255,143,.5)';b.style.background='rgba(57,255,143,.08)';b.style.color='var(--accent3)';}else if(i===oi&&!opt.ok){b.style.borderColor='rgba(255,58,110,.5)';b.style.background='rgba(255,58,110,.08)';b.style.color='var(--danger)';}});const fb=document.getElementById('socialFb'+si);if(fb){fb.style.display='block';if(opt.ok){fb.style.cssText='display:block;background:rgba(57,255,143,.08);border:1px solid rgba(57,255,143,.3);color:var(--accent3);padding:11px;border-radius:7px;font-size:.81px;';fb.innerHTML='✅ Richtig! Passwörter und Kreditkartendaten niemals per Chat weitergeben!';s5Pts+=35;updateStationPts(5,s5Pts);}else{fb.style.cssText='display:block;background:rgba(255,58,110,.08);border:1px solid rgba(255,58,110,.3);color:var(--danger);padding:11px;border-radius:7px;font-size:.81rem;';fb.innerHTML='❌ Falsch! Das wäre sehr gefährlich. Passwörter und Kreditkartennummern dürfen NIEMALS weitergegeben werden!';}}}
+
+// ============================================================
+// STATION 6 – CRYPTOGRAPHY
+// ============================================================
+const CIPHER_TEXT='KPL VNPBOLA NVA FZV OADZZB RLBLNDVZ';
+const REAL_DECODED='DIE SICHERHEIT IST DAS GROSSE GEHEIMNIS';
+// Actually encode with shift 3: encode = shift forward, decode = shift back
+// Let me use the real Caesar encoding: encoded = shift each letter by 3
+// DIE -> GLL ? No: D+3=G, I+3=L, E+3=H -> GLH
+const CIPHER_ENCODED='GLH VLFKHUKHLW LVW GDV JURVVH JHKHLPQLV';
+let activeShift=0,cryptoTab=0,cryptoDone=false;
+const HEX_MSG='48 61 63 6b 65 72 20 62 65 73 69 65 67 74 21';
+const HEX_DECODED='Hacker besiegt!';
+function buildS6(){
+  const shiftBtns=Array.from({length:13},(_,i)=>i).map(n=>`<button class="cipher-key-btn${n===0?' active':''}" id="ck${n}" onclick="setCipherShift(${n})">${n}</button>`).join('');
+  return videoBlock(6)+`
+  <div class="task-area">
+    <div class="crypto-terminal">
+      <div class="crypto-tabs">
+        <div class="crypto-tab active" id="ctab0" onclick="switchCryptoTab(0)">🔐 Caesar-Cipher</div>
+        <div class="crypto-tab" id="ctab1" onclick="switchCryptoTab(1)">16 Hex-Decoder</div>
+      </div>
+      <div class="crypto-body">
+        <!-- TAB 0: Caesar -->
+        <div id="cryptoTab0">
+          <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text2);margin-bottom:8px;">AUFGABE: Der Hacker hat diese verschlüsselte Botschaft hinterlassen. Findet den richtigen Verschiebungswert um sie zu entschlüsseln! <span style="color:var(--accent4);">(+80 Pts)</span></div>
+          <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text2);margin-bottom:5px;">VERSCHLÜSSELTER TEXT (Caesar-Cipher):</div>
+          <div class="cipher-display" id="cipherDisplay">${CIPHER_ENCODED}</div>
+          <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text2);margin-bottom:8px;">VERSCHIEBUNG WÄHLEN (0–12):</div>
+          <div class="cipher-wheel">${shiftBtns}</div>
+          <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text2);margin-bottom:5px;">ENTSCHLÜSSELTER TEXT:</div>
+          <div class="decoded-display" id="decodedDisplay">— Wähle einen Verschiebungswert</div>
+          <div id="caesarFb" style="display:none;margin-top:10px;padding:10px;border-radius:7px;font-family:var(--font-mono);font-size:.8rem;"></div>
+          <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h6a')">💡 Tipp anzeigen</button></div>
+          <div class="hint-box" id="h6a">Tipp: Julius Caesar hat seinen Geheimcode mit einer Verschiebung von 3 verwendet. D.h. 'A' wird zu 'D', 'B' zu 'E' usw. Um zu entschlüsseln, musst du die Buchstaben um denselben Wert ZURÜCK verschieben!</div>
+        </div>
+        <!-- TAB 1: Hex -->
+        <div id="cryptoTab1" style="display:none;">
+          <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text2);margin-bottom:8px;">AUFGABE: Entschlüssele diese Hex-Botschaft des Hackers! <span style="color:var(--accent4);">(+40 Pts)</span></div>
+          <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text2);margin-bottom:5px;">HEX-NACHRICHT:</div>
+          <div class="cipher-display" style="color:#a855f7;">${HEX_MSG}</div>
+          <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text2);margin-bottom:8px;">DEINE ÜBERSETZUNG:</div>
+          <input type="text" id="hexInput" placeholder="Was steht in der Hex-Nachricht?" oninput="checkHex(this.value)"
+            style="width:100%;padding:9px;background:#0d1a0d;border:1px solid #1a2a1a;border-radius:5px;color:#39ff8f;font-family:var(--font-mono);font-size:.88rem;outline:none;margin-bottom:10px;">
+          <div id="hexFb" style="font-family:var(--font-mono);font-size:.75rem;color:var(--text2);"></div>
+          <div style="margin-top:10px;">
+            <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--text2);margin-bottom:7px;">SCHNELL-REFERENZ (Hex → ASCII):</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-family:var(--font-mono);font-size:.65rem;">
+              ${['48=H','61=a','63=c','6b=k','65=e','72=r','20= ','62=b','73=s','69=i','67=g','74=t','21=!'].map(x=>`<div style="background:#111;border:1px solid #1a1a1a;padding:4px 6px;border-radius:3px;color:#8899aa;">${x}</div>`).join('')}
+            </div>
+          </div>
+          <div style="margin-top:11px;"><button class="hint-btn" onclick="toggleHint('h6b')">💡 Tipp anzeigen</button></div>
+          <div class="hint-box" id="h6b">Tipp: Hex (hexadezimal) ist ein Zahlensystem mit 16 Zeichen (0-9 und A-F). Im Computer wird jedes Zeichen als Hex-Zahl gespeichert. 48 in Hex = 72 in Dezimal = ASCII-Code für 'H'. Nutze die Referenztabelle!</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function initCrypto(){setCipherShift(0);}
+function switchCryptoTab(i){
+  cryptoTab=i;
+  document.getElementById('cryptoTab0').style.display=i===0?'block':'none';
+  document.getElementById('cryptoTab1').style.display=i===1?'block':'none';
+  document.getElementById('ctab0').classList.toggle('active',i===0);
+  document.getElementById('ctab1').classList.toggle('active',i===1);
+}
+function setCipherShift(n){
+  activeShift=n;
+  document.querySelectorAll('.cipher-key-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
+  const encoded=CIPHER_ENCODED.replace(/[A-Z]/g,c=>String.fromCharCode(((c.charCodeAt(0)-65-n+26)%26)+65));
+  const dec=document.getElementById('decodedDisplay');
+  if(dec) dec.textContent=encoded;
+  const fb=document.getElementById('caesarFb');
+  if(n===3){
+    if(dec) dec.style.color='var(--accent3)';
+    if(fb){fb.style.display='block';fb.style.background='rgba(57,255,143,.08)';fb.style.borderLeft='3px solid var(--accent3)';fb.style.color='var(--accent3)';fb.innerHTML='🎉 KORREKT! Verschiebung 3 – das ist der klassische Caesar-Cipher!<br><strong>Entschlüsselte Botschaft: '+REAL_DECODED+'</strong>';}
+    if(!cryptoDone){cryptoDone=true;s6Pts+=80;updateStationPts(6,s6Pts);}
+  } else {
+    if(dec) dec.style.color='var(--accent3)';
+    if(fb) fb.style.display='none';
+  }
+}
+let hexDone=false;
+function checkHex(v){
+  const fb=document.getElementById('hexFb');
+  if(v.trim().toLowerCase()===HEX_DECODED.toLowerCase()){
+    if(fb){fb.textContent='✅ Perfekt! "'+HEX_DECODED+'" – ihr habt den Hex-Code geknackt!';fb.style.color='var(--accent3)';}
+    if(!hexDone){hexDone=true;s6Pts+=40;updateStationPts(6,s6Pts);}
+  } else if(v.length>3){
+    if(fb){fb.textContent='Noch nicht ganz richtig... weiter versuchen!';fb.style.color='var(--warn)';}
+  }
+}
+
+// ============================================================
+// ADMIN PORTAL
+// ============================================================
+function showAdminPortal(){document.getElementById('adminPortal').style.display='flex';}
+function closeAdminPortal(){document.getElementById('adminPortal').style.display='none';}
+function doAdminLogin(){
+  const u=document.getElementById('adminUser').value;
+  const p=document.getElementById('adminPw').value;
+  const err=document.getElementById('adminError');
+  if(u===ADMIN_USER&&p===ADMIN_PW){
+    document.getElementById('adminLoginArea').style.display='none';
+    document.getElementById('adminDashboard').style.display='block';
+    loadAdminData();
+  } else {
+    err.textContent='Falsches Passwort!';err.style.display='block';
+  }
+}
+async function loadAdminData(){
+  const cont=document.getElementById('adminContent');
+  cont.innerHTML='<div style="font-family:var(--font-mono);font-size:.8rem;color:var(--text2);">Lade Daten...</div>';
+  const teams=await sbGet('teams','?select=*&order=total_points.desc');
+  if(!Array.isArray(teams)||!teams.length){cont.innerHTML='<p style="color:var(--text2);">Noch keine Teams registriert.</p>';return;}
+  const progress=await sbGet('station_progress','?select=*');
+  const progByTeam={};
+  if(Array.isArray(progress)) progress.forEach(p=>{if(!progByTeam[p.team_id])progByTeam[p.team_id]=[];progByTeam[p.team_id].push(p);});
+  const stats={total:teams.length,active:teams.filter(t=>(t.total_points||0)>0).length,maxPts:Math.max(...teams.map(t=>t.total_points||0)),avgPts:Math.round(teams.reduce((a,t)=>a+(t.total_points||0),0)/teams.length)};
+  cont.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;">
+    ${[['Teams gesamt',stats.total,'var(--accent)'],['Teams aktiv',stats.active,'var(--accent3)'],['Höchste Pts.',stats.maxPts,'var(--accent4)'],['Ø Punkte',stats.avgPts,'var(--text2)']].map(([l,v,c])=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:16px;"><div style="font-family:var(--font-mono);font-size:.68rem;color:var(--text2);margin-bottom:5px;">${l}</div><div style="font-family:var(--font-head);font-size:1.7rem;color:${c};">${v}</div></div>`).join('')}
+  </div>
+  <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:9px;overflow:hidden;">
+    <thead><tr>${['Rang','Team','Passwort-Stärke','S1','S2','S3','S4','S5','S6','Gesamt','Aktionen'].map(h=>`<th style="background:var(--surface2);padding:9px 12px;font-family:var(--font-mono);font-size:.68rem;color:var(--text2);letter-spacing:1px;text-align:left;border-bottom:1px solid var(--border);">${h}</th>`).join('')}</tr></thead>
+    <tbody>${teams.map((t,i)=>{
+      const tp=progByTeam[t.id]||[];
+      const stPts=s=>tp.find(p=>p.station_number===s)?.points_earned||0;
+      const weak=t.password_strength&&(t.password_strength==='Sehr schwach'||t.password_strength==='Schwach');
+      return `<tr style="${i%2===0?'':'background:rgba(255,255,255,.01)'}">
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border)40;"><strong style="color:${i===0?'var(--accent4)':i===1?'#ccc':i===2?'#cd7f32':'var(--text2)'}">${i+1}</strong></td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border)40;font-family:var(--font-head);">${t.team_name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border)40;font-family:var(--font-mono);font-size:.72rem;color:${weak?'var(--danger)':'var(--accent3)'};">${t.password_strength||'—'}</td>
+        ${[1,2,3,4,5,6].map(s=>`<td style="padding:8px 12px;border-bottom:1px solid var(--border)40;font-family:var(--font-mono);font-size:.78rem;color:${stPts(s)>0?'var(--accent3)':'var(--text2)'};">${stPts(s)||'—'}</td>`).join('')}
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border)40;font-family:var(--font-head);font-size:1.05rem;color:var(--accent3);font-weight:700;">${t.total_points||0}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border)40;"><button onclick="resetTeam('${t.id}','${t.team_name}')" style="padding:3px 9px;background:transparent;border:1px solid rgba(255,58,110,.3);border-radius:4px;color:var(--danger);font-family:var(--font-mono);font-size:.65rem;cursor:pointer;">Reset</button></td>
+      </tr>`;}).join('')}
+    </tbody>
+  </table></div>`;
+}
+async function resetTeam(id,name){
+  if(!confirm('Team "'+name+'" wirklich zurücksetzen?')) return;
+  await sbPatch('teams','?id=eq.'+id,{total_points:0});
+  await fetch(SB_URL+'/rest/v1/station_progress?team_id=eq.'+id,{method:'DELETE',headers:H});
+  loadAdminData();
+}
+
+</script>
+</body>
+</html>
