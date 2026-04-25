@@ -988,7 +988,7 @@ let stAttempts={};
 let currentPinStation=null, pinAttemptsLeft=3;
 
 const STATION_MAX_PTS={1:200,2:200,3:200,4:200,5:200,6:200};
-const UNLOCK_THRESHOLD=0.75;
+const UNLOCK_THRESHOLD=0.50;
 
 const STATION_PINS={1:null,2:null,3:null,4:'SAFE',5:'passwort',6:'finale'};
 const LOCK_DIGITS={1:'1',2:'8',3:'7'};
@@ -1252,7 +1252,7 @@ function renderStations(){
         <div class="station-num">STATION ${String(s.id).padStart(2,'0')} · GESPERRT</div>
         <div class="station-icon-wrap" style="background:${s.bg};">🔒</div>
         <div class="station-name">${s.name}</div>
-        <div class="station-desc">Schließt zuerst Station ${s.id-1} mit mindestens 75% ab.</div>
+        <div class="station-desc">Schließt zuerst Station ${s.id-1} mit mindestens 50% (100 Punkte) ab.</div>
         <div class="station-foot"><div class="station-pts-txt">⭐ 0 / ${s.maxPts} Pts</div><div class="station-status-badge s-locked">GESPERRT</div></div>
         <div class="station-progress-bar"><div class="station-progress-fill" style="width:0%;background:${s.color};"></div></div>
       </div>`;
@@ -1374,8 +1374,14 @@ function buildVidBlock(sId){
     <div id="vidUnlockMsg${sId}" class="vid-unlocked-msg" style="display:${watched?'flex':'none'};">✅ Video abgeschlossen — Aufgaben freigeschaltet!</div>
   </div>
   </div>
-  <div id="tasksWrap${sId}" style="${watched?'':'pointer-events:none;opacity:0.3;user-select:none;filter:blur(2px);'}">`;
+  </div>`;
 }
+function buildTasksWrap(sId){
+  const watched=videoWatched[sId];
+  const style=watched?'':'pointer-events:none;opacity:0.3;user-select:none;filter:blur(2px);';
+  return '<div id="tasksWrap'+sId+'" style="'+style+'">';
+}
+
 function buildVidBlockEnd(){return `</div>`;}
 
 function adminSkipVideo(sId){
@@ -1498,6 +1504,8 @@ function closeStation(){
 }
 
 function updateModalPts(id){
+  // Cap points at max
+  if(stPts[id]>200) stPts[id]=200;
   const el=document.getElementById('mptsDsp');
   const s=STATIONS.find(x=>x.id===id);
   if(el&&s)el.textContent='⭐ '+stPts[id]+' / '+s.maxPts;
@@ -1552,7 +1560,7 @@ async function completeStation(id){
   } else {
     showToast('Nur '+pts+'/'+maxPts+' Pts. Mindestens '+Math.ceil(threshold)+' benötigt!');
     setTimeout(()=>{
-      if(confirm('Ihr habt '+pts+' von '+maxPts+' Punkten (weniger als 75%). Nochmal versuchen?')){
+      if(confirm('Ihr habt '+pts+' von '+maxPts+' Punkten (weniger als 50%). Nochmal versuchen?')){
         stPts[id]=0;stAttempts[id]={};
         sbPatch('station_progress','?team_id=eq.'+currentTeam.id+'&station_number=eq.'+id,{status:'in-progress',points_earned:0});
         stationProgress[id].status='in-progress';stationProgress[id].points_earned=0;
@@ -1711,7 +1719,7 @@ function buildS1(){
   const v=getVariant(1);
   const choices=s1ChoiceVariants[v];
   const rankV=s1RankVariants[v];
-  const theory=buildTheoryAccordion('s1theory','🔐','Theorie: Passwörter & Sicherheit','Klicke um zu erfahren, wie Passwörter funktionieren',[
+  const theory_s1=buildTheoryAccordion('s1theory','🔐','Theorie: Passwörter & Sicherheit','Klicke um zu erfahren, wie Passwörter funktionieren',[
     {icon:'⚡',title:'Warum ist "abc" unsicherer als "123456"?',color:'var(--red)',
      text:'Ein Computer probiert Passwörter in einer bestimmten Reihenfolge durch. "abc" hat nur 3 Zeichen — das geht viel schneller als "123456" mit 6 Zeichen, selbst wenn beide aus Buchstaben bzw. Zahlen bestehen. <strong>Länge</strong> ist der wichtigste Faktor! Jedes zusätzliche Zeichen macht das Knacken exponentiell schwieriger.',
      example:'💡 abc = 3 Stellen → sofort geknackt | 123456 = 6 Stellen → Sekunden | Xk#9mP!2vQz@n = 13 Stellen = Jahrtausende'},
@@ -1725,8 +1733,7 @@ function buildS1(){
      text:'Stell dir vor: Du nutzt "hund123" bei 10 Websites. Ein Hacker knackt eine kleine, unsichere Seite — und hat plötzlich Zugang zu ALLEN deinen Accounts. Das nennt man Credential Stuffing. Lösung: Für jeden Dienst ein eigenes Passwort, am besten mit einem Passwort-Manager.',
      example:'🎯 Real passiert: 2024 wurden über 10 Milliarden gestohlene Passwörter im Darknet veröffentlicht. Viele Menschen nutzen dieselben überall.'},
   ]);
-  return theory+
-  buildVidBlock(1)+`
+  return buildVidBlock(1)+theory_s1+buildTasksWrap(1)+`
   <div class="task-block">
     <div class="task-header">
       <div><div class="task-title">🔬 AUFGABE 1: Passwort-Analyse — 3 Stufen</div>
@@ -2034,7 +2041,7 @@ function buildS2(){
     </div>
     <div id="wnet_mark_${n.id}" style="font-size:11px;font-family:var(--font-mono);"></div>
   </div>`).join('');
-  return theory+buildVidBlock(2)+`
+  return buildVidBlock(2)+theory+buildTasksWrap(2)+`
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">📡 AUFGABE 1: WLAN-Analyse — 2 Phasen</div>
     <div class="task-desc">Es gibt 12 Netzwerke — einige sind sicher, einige offen, und es verstecken sich <strong>4 Evil Twins</strong> darunter!</div></div><div class="task-pts-tag">+60 Pts</div></div>
@@ -2063,7 +2070,7 @@ function buildS2(){
   </div>
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🤖 AUFGABE 3: Hacker-Bot überwinden</div>
-    <div class="task-desc">Ein Hacker-Bot versucht euch zu überreden, euch mit einem unsicheren Netzwerk zu verbinden. Überzeugt ihn mit euren Argumenten — und beweist, dass ihr die Gefahren kennt!</div></div><div class="task-pts-tag">+60 Pts</div></div>
+    <div class="task-desc">Ein Hacker-Bot versucht euch zu überreden, euch mit einem unsicheren Netzwerk zu verbinden. Überzeugt ihn mit euren Argumenten — und beweist, dass ihr die Gefahren kennt!</div></div><div class="task-pts-tag">+40 Pts</div></div>
     <div id="s2botArea">
       <div class="chat-sim">
         <div class="chat-topbar">
@@ -2148,7 +2155,7 @@ function s2Action(){
   }
 }
 
-let s2BotConvHistory=[], s2BotArgPoints=0;
+let s2BotArgPoints=0;
 function s2Answer(qi,sel,correct,pts){
   if(s2QuizAnswers[qi]!==undefined)return;
   s2QuizAnswers[qi]=sel;
@@ -2173,35 +2180,41 @@ function s2CheckUrl(i,answeredSafe,isSafe){
 }
 function initWifiClock(){setInterval(()=>{const el=document.getElementById('wifiClock');if(el){const d=new Date();el.textContent=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();}},1000);}
 
-async function s2SendChat(){
+function s2SendChat(){
   const input=document.getElementById('s2chatInput');
   const msg=input.value.trim();
   if(!msg)return;
   input.value='';
   const msgs=document.getElementById('s2chatMsgs');
   msgs.innerHTML+=`<div class="chat-msg chat-me">${msg}<div class="chat-time">jetzt</div></div>`;
-  const loading=document.createElement('div');loading.className='chat-loading';loading.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(loading);msgs.scrollTop=msgs.scrollHeight;
-  s2BotConvHistory.push({role:'user',content:msg});
-  const systemPrompt=`Du bist GHOST_X_Jr., ein frecher aber lehrreicher Hacker-Bot für einen Cybersecurity-Workshop für Mittelschüler. Du hast WLAN-Angriffe (Evil Twin) durchgeführt und versuchst die Schüler zu überzeugen, sich mit deinem gefälschten Netzwerk zu verbinden. Die Schüler sollen dir WIDERSPRECHEN und erklären warum dein Netzwerk gefährlich ist. Wenn sie gute Argumente bringen (Evil Twin, WEP unsicher, Man-in-the-middle, Datenschutz etc.), gib nach und anerkenne ihr Wissen. Nach 3 guten Argumenten gibst du komplett auf. Antworte auf Deutsch, kurz (2-3 Sätze), bleib in der Rolle. Füge am Ende deiner Antwort immer "SCORE:X" hinzu wobei X die Anzahl der bisher erkannten guten Argumente ist (max 3). Erkenne Keywords: evil twin, wep, man-in-the-middle, mitm, unverschlüsselt, gefälscht, gefährlich, daten gestohlen, sicherer standard, wpa3.`;
-  const reply=await callClaude(s2BotConvHistory,systemPrompt);
-  s2BotConvHistory.push({role:'assistant',content:reply});
-  loading.remove();
-  const scoreMatch=reply.match(/SCORE:(\d)/);
-  const cleanReply=reply.replace(/SCORE:\d/,'').trim();
-  msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">GHOST_X_Jr.</div>${cleanReply}<div class="chat-time">jetzt</div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
-  if(scoreMatch){
-    const score=parseInt(scoreMatch[1]);
+  const msgLow=msg.toLowerCase();
+  const keywords=['evil twin','wep','man-in-the-middle','mitm','unverschlüsselt','gefälscht','gefährlich','daten','sicherer','wpa3','fake','doppelt','gleich','verschlüssel','abhören','abfangen'];
+  const found=keywords.filter(k=>msgLow.includes(k));
+  if(found.length>0) s2BotArgPoints=Math.min(3,s2BotArgPoints+1);
+  const score=s2BotArgPoints;
+  const replies_0=['Ha! Was weißt du schon über WLAN-Sicherheit? Verbinde dich einfach — es ist schneller!','Pfff, du übertreibst total. Das ist doch nur ein normales Netzwerk. Was soll da schon passieren?','Ich verstehe deine Bedenken nicht. Alle verbinden sich mit mir — du bist der Einzige der zögert!'];
+  const replies_1=['Hmm... okay, du weißt ein bisschen was. Aber WEP ist doch total sicher genug für schnelles Surfen!','Gut, du kennst ein paar Begriffe. Aber das ist doch alles Theorie — in der Praxis passiert nichts!','Du bist besser als ich dachte... aber nur weil ich ein gefälschtes Netz habe heißt das nichts.'];
+  const replies_2=['Okay okay, du hast mich fast! Aber hey, wer schaut schon nach dem Sicherheitsstandard? Alle klicken einfach!','Nicht schlecht! Du weißt wirklich was ein Evil Twin ist. Aber ich mache das schon lange so!','Ich muss zugeben — du weißt wie das funktioniert. Noch ein Argument und ich gebe auf...'];
+  const replies_3=['Alright, alright! Du hast gewonnen! Ich gebe zu: WEP ist total unsicher, mein Netz ist gefälscht und ich könnte alle Daten mitlesen. Gut erkannt! 🏳️','Du hast mich erwischt! Evil Twin, WEP, Man-in-the-Middle — du kennst alle meine Tricks. Ich gebe auf! 🏳️','Okay — ihr habt mich vollständig überzeugt! Mein Netz ist ein Evil Twin mit WEP-Verschlüsselung. Niemand sollte sich verbinden. Ihr seid zu gut! 🏳️'];
+  let reply;
+  if(score>=3) reply=replies_3[Math.floor(Math.random()*replies_3.length)];
+  else if(score===2) reply=replies_2[Math.floor(Math.random()*replies_2.length)];
+  else if(score===1) reply=replies_1[Math.floor(Math.random()*replies_1.length)];
+  else reply=replies_0[Math.floor(Math.random()*replies_0.length)];
+  setTimeout(()=>{
+    msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">GHOST_X_Jr.</div>${reply}<div class="chat-time">jetzt</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('s2botScore').textContent='Überzeugungs-Fortschritt: '+score+'/3 Argumente erkannt';
-    if(score>=3&&s2BotArgPoints<60){
-      s2BotArgPoints=60;stPts[2]+=60;updateModalPts(2);
-      const fb=document.getElementById('s2botFb');fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='🎉 GHOST_X_Jr. wurde überzeugt! +60 Punkte! Ihr kennt die Gefahren!';
-      showToast('+60 Punkte! Hacker-Bot überwunden! 🎉');
+    if(score>=3&&s2BotArgPoints<=3){
+      s2BotArgPoints=99;stPts[2]+=40;updateModalPts(2);
+      const fb=document.getElementById('s2botFb');fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='🎉 GHOST_X_Jr. wurde überzeugt! +40 Punkte! Ihr kennt die Gefahren!';
+      showToast('+40 Punkte! Hacker-Bot überwunden! 🎉');
     }
-  }
+  },800);
 }
 
-// ══════════════════════════════════════════════════
+//  ══════════════════════════════════════════════════
 // STATION 3 — PHISHING DETEKTOR
 // ══════════════════════════════════════════════════
 let s3Verdicts={}, s3SelectedFlags=new Set(), s3TipsDone=false, s3UrlPairs={};
@@ -2262,7 +2275,7 @@ function buildS3(){
   ]);
   const emailListHtml=PHISHING_EMAILS.map(e=>`<div class="email-list-item ${e.id==='e1'?'sel':''}" id="elist_${e.id}" onclick="s3ShowEmail('${e.id}')"><div class="email-from-preview">${e.fromLabel}</div><div class="email-subj-preview">${e.subj.slice(0,40)}…</div></div>`).join('');
   const firstEmail=PHISHING_EMAILS[0];
-  return theory+buildVidBlock(3)+`
+  return buildVidBlock(3)+theory+buildTasksWrap(3)+`
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">📧 AUFGABE 1: E-Mails analysieren</div><div class="task-desc">5 E-Mails — entscheide für jede: Echt oder Phishing? Je 2 Versuche, 10 Punkte.</div></div><div class="task-pts-tag">5 × 10 Pts</div></div>
     <div class="attempt-indicator" id="s3t2att"></div>
@@ -2371,7 +2384,7 @@ function s3Judge(id,verdict){
   const existing=document.querySelector('#s3emailView .feedback-box');
   if(existing)existing.remove();
   document.getElementById('s3emailView')?.appendChild(fb);
-  if(correct){stPts[3]+=awarded;updateModalPts(3);}
+  if(correct){/* pts already added by awardPts */updateModalPts(3);}
   renderAttemptDots(3,'t2','s3t2att');
   const listItem=document.getElementById('elist_'+id);
   if(listItem)listItem.style.borderLeft='3px solid '+(correct?'var(--green)':'var(--red)');
@@ -2402,32 +2415,54 @@ function s3CheckFlags(){
   renderAttemptDots(3,'flags','s3t2att2');
 }
 
-let s3BotHistory=[], s3BotRevealCount=0;
-async function s3SendInterrogation(){
+let s3BotRevealCount=0, s3BotRevealScore=0;
+function s3SendInterrogation(){
   const input=document.getElementById('s3chatInput');const msg=input.value.trim();if(!msg)return;
   input.value='';
   const msgs=document.getElementById('s3chatMsgs');
   msgs.innerHTML+=`<div class="chat-msg chat-me">${msg}<div class="chat-time">jetzt</div></div>`;
-  const loading=document.createElement('div');loading.className='chat-loading';loading.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(loading);msgs.scrollTop=msgs.scrollHeight;
-  s3BotHistory.push({role:'user',content:msg});
-  const sys=`Du bist PhishBot-3000, ein lehrreicher Phishing-Bot für einen Cybersecurity-Workshop für Mittelschüler. Du wurdest "verhaftet" und wirst verhört. Du gibst langsam zu, wie du Phishing-Angriffe durchgeführt hast — aber nur wenn die Schüler die richtigen Fragen stellen oder die richtigen Begriffe nennen. Themen die dich zum Geständnis bringen: Gefälschte Domains, Dringlichkeit/Angst erzeugen, Fake-Login-Seiten/Credential Harvesting, E-Mail-Spoofing, Social Engineering. Nach 3 enthüllten Methoden gibst du vollständig auf. Antworte auf Deutsch, 2-3 Sätze, bleib dramatisch in der Rolle. Füge "REVEAL:X" hinzu (X = Anzahl enthüllter Methoden bisher, max 3).`;
-  const reply=await callClaude(s3BotHistory,sys);
-  s3BotHistory.push({role:'assistant',content:reply});
-  loading.remove();
-  const scoreMatch=reply.match(/REVEAL:(\d)/);
-  const cleanReply=reply.replace(/REVEAL:\d/,'').trim();
-  msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">PhishBot-3000</div>${cleanReply}<div class="chat-time">jetzt</div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
-  if(scoreMatch){
-    const score=parseInt(scoreMatch[1]);
+  const msgLow=msg.toLowerCase();
+  const keywords=['domain','link','dringlichkeit','angst','fake','gefälscht','spoofing','login','passwort','credential','harvest','methode','wie','trick','social','email'];
+  const found=keywords.filter(k=>msgLow.includes(k));
+  if(found.length>0) s3BotRevealScore=Math.min(3,s3BotRevealScore+1);
+  const score=s3BotRevealScore;
+  const replies_0=[
+    '...Ich sage nichts. Ihr könnt mich nicht zwingen! Haha! 😏',
+    'Was glaubt ihr eigentlich wer ihr seid?! Ich bin der berühmte PhishBot-3000!',
+    'Netter Versuch. Aber so leicht gebt ihr meine Geheimnisse nicht preis.',
+  ];
+  const replies_1=[
+    'Okaaay... zugegeben, ich benutze manchmal... gefälschte Domain-Namen. ABER NUR MANCHMAL! 😤',
+    'Hm. Ihr seid cleverer als ich dachte. Ja, ich registriere Domains die echten sehr ähneln. Aber mehr sage ich nicht!',
+    'Na gut, eine Sache: Ich nutze URLs die fast identisch mit echten Seiten aussehen. Seid ihr jetzt happy?!',
+  ];
+  const replies_2=[
+    'Argh! Okay okay... ich erzeuge AUCH künstlichen Druck. "Konto gesperrt!", "Sofort handeln!" — das macht die Leute panisch. Zufrieden?!',
+    'Ihr habt mich fast! Ja, ich nutze Angst als Waffe. Und fake Login-Seiten. Aber das ist alles!',
+    'Hmph. Ja, E-Mail-Spoofing... ich fälsche Absenderadressen damit es echt aussieht. Mehr erfahrt ihr nicht!',
+  ];
+  const replies_3=[
+    'FINE! Ich gestehe alles! Gefälschte Domains, künstliche Dringlichkeit, Fake-Login-Seiten für Credential Harvesting, E-Mail-Spoofing — das sind ALLE meine Methoden! Ihr habt mich! 🏳️',
+    'Ihr habt gewonnen! Meine komplette Methodik: 1) Fake-Domain, 2) Angst erzeugen, 3) Fake-Login, 4) Passwörter stehlen. Das ist Credential Harvesting! Ich bin erledigt! 🏳️',
+    'Alles raus: Ich spofe E-Mails, fälsche Webseiten, erzeuge Panik — und ernte dann die Passwörter der Opfer. Social Engineering pur. Ihr habt mich vollständig! 🏳️',
+  ];
+  let reply;
+  if(score>=3) reply=replies_3[Math.floor(Math.random()*replies_3.length)];
+  else if(score===2) reply=replies_2[Math.floor(Math.random()*replies_2.length)];
+  else if(score===1) reply=replies_1[Math.floor(Math.random()*replies_1.length)];
+  else reply=replies_0[Math.floor(Math.random()*replies_0.length)];
+  setTimeout(()=>{
+    msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">PhishBot-3000</div>${reply}<div class="chat-time">jetzt</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('s3botScore').textContent='Geständnis-Fortschritt: '+score+'/3 Methoden enthüllt';
     if(score>=3&&s3BotRevealCount<60){
-      s3BotRevealCount=60;stPts[3]+=60;updateModalPts(3);
+      s3BotRevealCount=99;stPts[3]+=60;updateModalPts(3);
       const fb=document.getElementById('s3botFb');fb.className='feedback-box fb-correct';fb.style.display='block';
       fb.innerHTML='🎉 PhishBot vollständig verhört! Alle Methoden enthüllt! +60 Punkte!';
       showToast('+60 Punkte! Phisher überführt! 🎣');
     }
-  }
+  },700);
 }
 
 function s3CheckUrlPair(i,choice,isReal){
@@ -2509,7 +2544,7 @@ function buildS4(){
      text:'1) Antivirus immer aktuell halten. 2) Keine Downloads von unbekannten Quellen. 3) Niemals Cracks/Hacks aus dem Internet. 4) USB-Sticks vor Verwendung scannen. 5) Regelmäßige Backups (3-2-1 Regel). 6) Windows/Programme aktuell halten.',
      example:'💡 3-2-1-Backup: 3 Kopien, auf 2 verschiedenen Medien, davon 1 außer Haus (Cloud). So schützt du dich gegen Ransomware!'},
   ]);
-  return theory+buildVidBlock(4)+`
+  return buildVidBlock(4)+theory+buildTasksWrap(4)+`
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🔬 AUFGABE 1: Malware-Scanner</div>
     <div class="task-desc">Analysiere ${files.length} Dateien. Markiere alle Malware-Dateien (🔴) und alle sicheren Dateien (✅). Jede korrekte Bewertung: +5 Punkte.</div></div><div class="task-pts-tag">${files.length}×5 Pts</div></div>
@@ -2595,7 +2630,7 @@ function s4TypeAnswer(i,isCorrect){
   document.getElementById('s4opts'+i)?.querySelectorAll('button').forEach(b=>b.disabled=true);
   const fb=document.getElementById('s4qfb'+i);
   if(isCorrect){fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='✅ Richtig! +'+awarded+' Punkte!';}
-  else if(att<2){fb.className='feedback-box fb-wrong';fb.style.display='block';fb.innerHTML='❌ Nicht ganz. Noch 1 Versuch!';document.getElementById('s4opts'+i)?.querySelectorAll('button').forEach(b=>b.disabled=false);document.getElementById('s4opts'+i)?.querySelectorAll('button')[0].click&&null;document.querySelectorAll('#s4opts'+i+' button:not(:first-child)')[0]?.removeAttribute('disabled');document.querySelectorAll('#s4opts'+i+' button:first-child')[0]?.setAttribute('disabled','true');}
+  else if(att<2){fb.className='feedback-box fb-wrong';fb.style.display='block';fb.innerHTML='❌ Nicht ganz. Noch 1 Versuch!';document.getElementById('s4opts'+i)?.querySelectorAll('button').forEach(b=>b.disabled=false);}
   else{fb.className='feedback-box fb-locked';fb.style.display='block';fb.innerHTML='🔒 Richtig wäre die erste Option gewesen. '+malTypeData[i].desc+' 0 Punkte.';}
   renderAttemptDots(4,'t'+i,'s4qa'+i);
 }
@@ -2622,7 +2657,7 @@ const SE_SCENARIOS=[
    ],
    realAction:'Kein IT-Support braucht jemals dein Passwort! Auflegen, direkt bei der echten IT melden.',
    redFlags:['Passwort am Telefon fordern','Künstliche Dringlichkeit','Drohung mit Kontosperrung','Unaufgeforderte Kontaktaufnahme'],
-   pts:50,
+   pts:20,
   },
   {id:'s2',icon:'📧',name:'E-Mail vom "Direktor"',
    chat:[
@@ -2631,7 +2666,7 @@ const SE_SCENARIOS=[
    ],
    realAction:'Immer per Telefon beim echten Direktor rückfragen! E-Mails können gefälscht sein (CEO-Fraud).',
    redFlags:['Nicht erreichbar für Rückfragen','Geheimhaltung verlangt','Finanztransaktion per E-Mail','Druckaufbau'],
-   pts:50,
+   pts:20,
   },
   {id:'s3',icon:'👤',name:'Fremder an der Schultür',
    chat:[
@@ -2640,7 +2675,7 @@ const SE_SCENARIOS=[
    ],
    realAction:'Niemals! Unbekannte Personen IMMER an der Rezeption anmelden lassen — das nennt sich "Tailgating".',
    redFlags:['Kein Ausweis','Zeitdruck erzeugt','Emotional/freundlich','Autorität vortäuschen'],
-   pts:50,
+   pts:20,
   },
 ];
 
@@ -2670,10 +2705,10 @@ function buildS5(){
      text:'1) IMMER verifizieren wer anruft — selbst rückrufen. 2) Kein Passwort je per Telefon oder E-Mail. 3) Bei Druck: Zeit nehmen, nicht reagieren. 4) Unbekannte physisch: immer an Rezeption anmelden. 5) Im Zweifel: vorgesetzten fragen.',
      example:'💡 Goldene Regel: Vertrau deinem Bauchgefühl. Wenn etwas komisch wirkt — ist es komisch!'},
   ]);
-  return theory+buildVidBlock(5)+`
+  return buildVidBlock(5)+theory+buildTasksWrap(5)+`
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🎭 AUFGABE 1: Social Engineering Szenarien</div>
-    <div class="task-desc">3 realistische Szenarien — erkenne die Taktiken und reagiere richtig!</div></div><div class="task-pts-tag">3 × 50 Pts</div></div>
+    <div class="task-desc">3 realistische Szenarien — erkenne die Taktiken und reagiere richtig!</div></div><div class="task-pts-tag">3 × 20 Pts</div></div>
     <div id="s5scenarioWrap">${SE_SCENARIOS.map((sc,i)=>`
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;" id="s5sc${i}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -2698,7 +2733,7 @@ function buildS5(){
   </div>
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🤖 AUFGABE 2: Social Engineering Bot</div>
-    <div class="task-desc">Ein Social Engineering Bot versucht euch zu manipulieren! Erkennt seine Taktiken und erklärt warum ihr NICHT mitmacht. 3 Erkenntnisse = Punkte!</div></div><div class="task-pts-tag">+60 Pts</div></div>
+    <div class="task-desc">Ein Social Engineering Bot versucht euch zu manipulieren! Erkennt seine Taktiken und erklärt warum ihr NICHT mitmacht. 3 Erkenntnisse = Punkte!</div></div><div class="task-pts-tag">+30 Pts</div></div>
     <div class="chat-sim">
       <div class="chat-topbar">
         <div class="chat-av" style="background:#7c3aed;">🎭</div>
@@ -2769,32 +2804,38 @@ function s5ScenarioAnswer(scIdx,chosen,correct){
   }
 }
 
-let s5BotHistory=[], s5BotTacticCount=0;
-async function s5SendSocial(){
+let s5BotTacticCount=0, s5BotTacticScore=0;
+function s5SendSocial(){
   const input=document.getElementById('s5chatInput');const msg=input.value.trim();if(!msg)return;
   input.value='';
   const msgs=document.getElementById('s5chatMsgs');
   msgs.innerHTML+=`<div class="chat-msg chat-me">${msg}<div class="chat-time">jetzt</div></div>`;
-  const loading=document.createElement('div');loading.className='chat-loading';loading.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(loading);msgs.scrollTop=msgs.scrollHeight;
-  s5BotHistory.push({role:'user',content:msg});
-  const sys=`Du bist SocialBot-X, ein lehrreicher Social-Engineering-Bot für einen Cybersecurity-Workshop. Du versuchst Schüler zu manipulieren (IT-Support-Trick, CEO-Fraud, Dringlichkeit), aber wenn sie erkennen was du machst und es gut erklären, gibst du langsam nach. Gib zu wenn Schüler gute Punkte machen: Passwörter niemals weitergeben, immer verifizieren, Druck = Warnsignal, kein echtes IT fragt so. Nach 3 richtigen Erkenntnissen gibst du auf. Antworte auf Deutsch, 2-3 Sätze, bleib in der dramatischen Hacker-Rolle. Füge "TACTIC:X" hinzu (X = Anzahl erkannter Taktiken, max 3).`;
-  const reply=await callClaude(s5BotHistory,sys);
-  s5BotHistory.push({role:'assistant',content:reply});
-  loading.remove();
-  const scoreMatch=reply.match(/TACTIC:(\d)/);
-  const cleanReply=reply.replace(/TACTIC:\d/,'').trim();
-  msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">SocialBot-X</div>${cleanReply}<div class="chat-time">jetzt</div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
-  if(scoreMatch){
-    const score=parseInt(scoreMatch[1]);
+  const msgLow=msg.toLowerCase();
+  const keywords=['passwort','nein','nicht','verifizier','prüf','druck','warnsignal','manipulat','social','it-support','echt','verdächtig','kein','niemals','nie','taktik','methode'];
+  const found=keywords.filter(k=>msgLow.includes(k));
+  if(found.length>0) s5BotTacticScore=Math.min(3,s5BotTacticScore+1);
+  const score=s5BotTacticScore;
+  const replies_0=['Komm schon, ich bin doch der echte IT-Admin! Warum misstraust du mir so?! Die Noten werden gelöscht wenn du nicht hilfst! 😤','Ich habe keine Zeit für Diskussionen! Chef Berger wartet auf das Passwort. Bitte jetzt SOFORT!','Du machst das viel zu kompliziert! Alle anderen haben mir schon geholfen. Sei kein Spielverderber!'];
+  const replies_1=['Hmm... du bist vorsichtig. Aber ich garantiere dir — das ist ein Notfall! Kannst du nicht einfach vertrauen?','Okay, ich verstehe deine Bedenken ein bisschen. Aber die Zeit läuft ab! Kannst du nicht eine Ausnahme machen?','Du kennst dich aus, was? Gut. Aber dieser Fall ist wirklich anders. Wirklich!'];
+  const replies_2=['Touché... du erkennst meinen Druck. Aber was wenn es wirklich dringend ist? Wie unterscheidest du echte von falscher Dringlichkeit?','Okay, ich gebe zu — Druck ist eine Taktik. Aber hey, manchmal gibt es echte Notfälle! Wie kannst du sicher sein?','Du bist gut. Fast zu gut. Noch eine Sache hätte ich gerne gewusst...'];
+  const replies_3=['Alright, ich gebe auf! Du hast alles erkannt: Druck, IT-Trick, Passwort-Forderung — das ist klassisches Social Engineering! Gut gemacht! 🏳️','Du hast mich durchschaut! IT fragt NIE nach Passwörtern, Druck = Warnsignal, immer direkt zurückrufen — ihr kennt alle Regeln! 🏳️','Gewonnen! Meine Taktiken: Dringlichkeit erzeugen, Autorität vortäuschen, Passwort erschleichen. Das nennt sich Vishing & Pretexting. Ihr seid brilliant! 🏳️'];
+  let reply;
+  if(score>=3) reply=replies_3[Math.floor(Math.random()*replies_3.length)];
+  else if(score===2) reply=replies_2[Math.floor(Math.random()*replies_2.length)];
+  else if(score===1) reply=replies_1[Math.floor(Math.random()*replies_1.length)];
+  else reply=replies_0[Math.floor(Math.random()*replies_0.length)];
+  setTimeout(()=>{
+    msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">SocialBot-X</div>${reply}<div class="chat-time">jetzt</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('s5botScore').textContent='Erkannte Taktiken: '+score+'/3';
-    if(score>=3&&s5BotTacticCount<60){
-      s5BotTacticCount=60;stPts[5]+=60;updateModalPts(5);
+    if(score>=3&&s5BotTacticCount<30){
+      s5BotTacticCount=99;stPts[5]+=30;updateModalPts(5);
       const fb=document.getElementById('s5botFb');fb.className='feedback-box fb-correct';fb.style.display='block';
-      fb.innerHTML='🎉 Social Engineering Bot überwunden! +60 Punkte! Ihr seid nicht manipulierbar!';
-      showToast('+60 Punkte! Manipulation erkannt! 🕵️');
+      fb.innerHTML='🎉 Social Engineering Bot überwunden! +30 Punkte! Ihr seid nicht manipulierbar!';
+      showToast('+30 Punkte! Manipulation erkannt! 🕵️');
     }
-  }
+  },700);
 }
 
 function s5SelectLeft(el){
@@ -2888,7 +2929,7 @@ function buildS6(){
     <div class="binary-arrow">↕</div>
     <div class="binary-bits">${b}</div>
   </div>`).join('');
-  return theory+buildVidBlock(6)+`
+  return buildVidBlock(6)+theory+buildTasksWrap(6)+`
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🏛️ AUFGABE 1: Caesar-Code knacken</div>
     <div class="task-desc">Entschlüssele das Wort manuell! Verwende das Alphabet-Rad unten — kein Auto-Decoder! 2 Versuche.</div></div><div class="task-pts-tag">+40 Pts</div></div>
@@ -3021,7 +3062,7 @@ function s6CheckCaesar(){
   const{awarded,att}=awardPts(6,'t1',40);
   const fb=document.getElementById('s6t1fb');
   if(input===puzzle.word){
-    s6T1Done=true;stPts[6]+=awarded;updateModalPts(6);
+    s6T1Done=true;/* pts already added by awardPts */updateModalPts(6);
     fb.className='feedback-box fb-correct';fb.style.display='block';fb.innerHTML='🎉 Korrekt! "'+puzzle.word+'" war die Antwort! +'+awarded+' Punkte! Caesar-Verschlüsselung geknackt!';
     showToast('+'+awarded+' Punkte! Caesar-Code geknackt! 🏛️');
   } else if(att<2){
@@ -3042,28 +3083,43 @@ function s6QRAnswer(qi,sel,correct,pts,expl){
   else{fb.className='feedback-box fb-wrong';fb.style.display='block';fb.innerHTML='❌ Falsch! Richtig: '+expl;document.getElementById('s6qq'+qi+'o'+correct).style.background='rgba(0,255,136,0.08)';}
 }
 
-let s6CryptoDone=false;
-async function s6SendCrypto(){
+let s6CryptoDone=false, s6CryptoHintLevel=0;
+function s6SendCrypto(){
   const input=document.getElementById('s6chatInput');const msg=input.value.trim();if(!msg)return;
   input.value='';
   const msgs=document.getElementById('s6chatMsgs');
   msgs.innerHTML+=`<div class="chat-msg chat-me">${msg}<div class="chat-time">jetzt</div></div>`;
-  const loading=document.createElement('div');loading.className='chat-loading';loading.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(loading);msgs.scrollTop=msgs.scrollHeight;
-  s6CryptoHistory.push({role:'user',content:msg});
-  const sys=`Du bist CryptoBot-GHOST_X, ein lehrreicher Verschlüsselungs-Bot für einen Cybersecurity-Workshop für Mittelschüler. Du hast die Botschaft "VLFKHU" hinterlassen, die mit Caesar-Verschlüsselung (Shift 3) codiert wurde. Das Klartext-Wort ist "SICHER". Wenn Schüler fragen oder Hinweise brauchen, gib ihnen schrittweise Hinweise: 1) Hinweis: Es ist eine klassische Verschlüsselungsmethode. 2) Hinweis: Jeder Buchstabe wurde um eine feste Zahl verschoben. 3) Hinweis: Die Verschiebung ist 3. Wenn sie sowohl die Methode (Caesar/Caesar-Verschlüsselung/Shift) ALS AUCH das Wort "SICHER" nennen, antworte mit Glückwunsch und füge "SOLVED:1" hinzu. Ansonsten füge "SOLVED:0" hinzu. Antworte auf Deutsch, 2-3 Sätze.`;
-  const reply=await callClaude(s6CryptoHistory,sys);
-  s6CryptoHistory.push({role:'assistant',content:reply});
-  loading.remove();
-  const solvedMatch=reply.match(/SOLVED:(\d)/);
-  const cleanReply=reply.replace(/SOLVED:\d/,'').trim();
-  msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">CryptoBot</div>${cleanReply}<div class="chat-time">jetzt</div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
-  if(solvedMatch&&parseInt(solvedMatch[1])===1&&!s6CryptoDone){
-    s6CryptoDone=true;stPts[6]+=40;updateModalPts(6);
-    const fb=document.getElementById('s6cryptoFb');fb.className='feedback-box fb-correct';fb.style.display='block';
-    fb.innerHTML='🎉 Verschlüsselung geknackt! +40 Punkte! VLFKHU = SICHER (Caesar, Shift 3)!';
-    showToast('+40 Punkte! Kryptographie gemeistert! 🔐');
+  const msgLow=msg.toLowerCase();
+  // Check if solved: needs both method (caesar/shift/verschiebung) AND word (sicher)
+  const hasMethod=msgLow.includes('caesar')||msgLow.includes('shift')||msgLow.includes('verschiebung')||msgLow.includes('verschoben');
+  const hasWord=msgLow.includes('sicher');
+  let reply;
+  if(hasMethod&&hasWord&&!s6CryptoDone){
+    reply='🎉 Ausgezeichnet! Ihr habt es geknackt! VLFKHU ist mit Caesar-Verschlüsselung (Shift 3) codiert — jeder Buchstabe wurde um 3 Stellen vorgerückt. V→S, L→I, F→C, K→H, H→E, U→R = SICHER! Sehr gut gemacht! 🔐';
+  } else if(msgLow.includes('hinweis')||msgLow.includes('hilfe')||msgLow.includes('tipp')||msgLow.includes('help')||msgLow.includes('?')){
+    s6CryptoHintLevel++;
+    if(s6CryptoHintLevel===1) reply='💡 Hinweis 1: Es ist eine klassische Verschlüsselungsmethode aus dem antiken Rom. Julius Caesar selbst hat sie benutzt!';
+    else if(s6CryptoHintLevel===2) reply='💡 Hinweis 2: Jeder Buchstabe im Alphabet wurde um eine feste Anzahl Stellen verschoben. A wird zu D, B zu E, C zu F...';
+    else reply='💡 Hinweis 3: Die Verschiebung ist genau 3 Stellen. Also: V-3=S, L-3=I, F-3=C, K-3=H, H-3=E, U-3=R. Was ergibt das?';
+  } else if(hasWord&&!hasMethod){
+    reply='🤔 Das Wort habt ihr schon! Aber welche Verschlüsselungsmethode wurde verwendet? (Tipp: Fragt nach einem Hinweis wenn ihr nicht weiterkommt!)';
+  } else if(hasMethod&&!hasWord){
+    reply='👍 Richtige Methode erkannt! Aber was ist das entschlüsselte Wort? VLFKHU mit Shift 3 zurück... V→S, L→I, F→C, K→H, H→E, U→R. Was ergibt das?';
+  } else {
+    const general=['Interessant! Aber ich gebe keine Antworten umsonst. Analysiert die Botschaft VLFKHU genauer — fragt nach Hinweisen wenn ihr nicht weiterkommt! 🔐','Gute Überlegung. Aber ihr müsst sowohl die Methode als auch das Klartext-Wort nennen um Punkte zu bekommen!','Schaut euch die Buchstaben an: V-L-F-K-H-U. Jeder Buchstabe ist um eine feste Zahl verschoben. Welche Methode ist das?'];
+    reply=general[Math.floor(Math.random()*general.length)];
   }
+  setTimeout(()=>{
+    msgs.innerHTML+=`<div class="chat-msg chat-them"><div class="chat-sender">CryptoBot</div>${reply}<div class="chat-time">jetzt</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+    if(hasMethod&&hasWord&&!s6CryptoDone){
+      s6CryptoDone=true;stPts[6]+=40;updateModalPts(6);
+      const fb=document.getElementById('s6cryptoFb');fb.className='feedback-box fb-correct';fb.style.display='block';
+      fb.innerHTML='🎉 Verschlüsselung geknackt! +40 Punkte! VLFKHU = SICHER (Caesar, Shift 3)!';
+      showToast('+40 Punkte! Kryptographie gemeistert! 🔐');
+    }
+  },600);
 }
 
 // ══════════════════════════════════════════════════
