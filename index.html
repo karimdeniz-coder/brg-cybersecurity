@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gymnasium Hackerhausen – Cybersecurity Challenge 2026</title>
+<title>Hackerhausen Cyber Academy – Cybersecurity Challenge 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne+Mono&family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
@@ -25,10 +25,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 ::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;}
 
 /* ── FAKE SCHOOL WEBSITE pls work n halewkfjhweokfjwefow ::-webkit-scrollbar-track ── */
-#hackIntro{position:fixed;inset:0;z-index:9999;background:#f0f2f5;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;overflow:hidden;}
-.brg-topstrip{background:#003399;padding:5px 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#aac4ff;}
-.brg-header{background:linear-gradient(135deg,#003399 0%,#1a5cbf 60%,#003399 100%);padding:0;display:flex;align-items:stretch;border-bottom:4px solid #c9a800;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
-.brg-logo-area{background:rgba(0,0,0,0.15);padding:12px 22px;display:flex;align-items:center;gap:14px;border-right:1px solid rgba(255,255,255,0.15);}
+#hackIntro{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;overflow:hidden;color:#0f0;}
+#hackIntro > :not(#hackIntroOverlay){display:none;}
+#hackIntroOverlay{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;z-index:10000;}
+#hackIntroOverlay::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(0,255,65,0.12),transparent 28%),radial-gradient(circle at bottom right,rgba(255,45,85,0.1),transparent 32%);pointer-events:none;}
+#hackIntroOverlay .intro-glow{position:relative;z-index:1;max-width:760px;text-align:center;}
+#hackIntroOverlay .intro-heading{font-family:var(--font-mono);font-size:18px;color:#0f0;text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;}
+#hackIntroOverlay .intro-sub{font-family:var(--font-body);font-size:13px;color:#8cff8c;line-height:1.7;}
+.brg-topstrip{background:#0c1220;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#8cff8c;}
+.brg-header{background:linear-gradient(135deg,#0a1322 0%,#10182d 60%,#0a1322 100%);padding:0;display:flex;align-items:stretch;border-bottom:4px solid #14f4b7;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+.brg-logo-area{background:rgba(255,255,255,0.04);padding:12px 22px;display:flex;align-items:center;gap:14px;border-right:1px solid rgba(255,255,255,0.08);}
 .brg-logo-circle{width:64px;height:64px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#003399;letter-spacing:-0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.3);flex-shrink:0;}
 .brg-school-name{color:white;}
 .brg-school-name h1{font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:1px;}
@@ -568,31 +574,40 @@ input.styled-input:focus{border-color:var(--cyan);}
 
 <!-- FAKE SCHOOL WEBSITE -->
 <div id="hackIntro">
+  <div id="hackIntroOverlay">
+    <div class="intro-glow">
+      <div class="intro-heading">GHOST_X TAKEDOWN IN PROGRESS</div>
+      <div class="intro-sub">VERBINDE ZUM DARKNET-HUB. ALLES ANDERE IST AUSGESCHALTET. WARTET AUF DIE ANGRIFFSSEQUENZ.</div>
+    </div>
+  </div>
   <div class="brg-topstrip">
-    <span>📞 +43 512 123456 &nbsp;|&nbsp; 📧 office@gymnasium-hackerhausen.at &nbsp;|&nbsp; Gymnasium Hackerhausen</span>
-    <span>🌐 Deutsch ▾ &nbsp;|&nbsp; Barrierefreiheit ⚙</span>
+    <span>⚠ SYSTEM-HUB | Hackerhausen Cyber Academy</span>
+    <span>🌐 DE ▾ &nbsp;|&nbsp; SECURITY MODE ⚙</span>
   </div>
   <div class="brg-header">
     <div class="brg-logo-area">
       <div class="brg-logo-circle">
         <svg viewBox="0 0 64 64" width="58" height="58" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="#003399" stroke="#c9a800" stroke-width="2.5"/>
-          <text x="32" y="24" font-family="Arial" font-weight="900" font-size="11" fill="white" text-anchor="middle" letter-spacing="1">BRG</text>
-          <line x1="14" y1="28" x2="50" y2="28" stroke="#c9a800" stroke-width="1.2"/>
-          <text x="32" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#c9a800" text-anchor="middle" letter-spacing="2">INNS</text>
-          <text x="32" y="48" font-family="Arial" font-weight="700" font-size="7" fill="rgba(255,255,255,0.8)" text-anchor="middle">BRUCK</text>
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00ff88"/>
+              <stop offset="100%" stop-color="#00e5ff"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#logoGrad)" stroke="#ffffff" stroke-width="2"/>
+          <text x="32" y="38" font-family="Arial" font-weight="900" font-size="18" fill="#07131c" text-anchor="middle">HX</text>
         </svg>
       </div>
       <div class="brg-school-name">
         <h1>GYMNASIUM HACKERHAUSEN</h1>
-        <p>Gymnasium Hackerhausen</p>
-        <small>Hackerstraße 1, 6020 Innsbruck</small>
+        <p>Hackerhausen Cyber Academy</p>
+        <small>Cyber Campus · Virtual Network</small>
       </div>
     </div>
     <div class="brg-header-right">
-      <div class="brg-header-btn">📚 Webuntis</div>
-      <div class="brg-header-btn">📧 Schulmail</div>
-      <div class="brg-header-btn primary">🔐 Eltern-Login</div>
+      <div class="brg-header-btn">🧠 CyberPortal</div>
+      <div class="brg-header-btn">✉️ SecureMail</div>
+      <div class="brg-header-btn primary">🔐 Team-Zugang</div>
     </div>
   </div>
   <div class="brg-nav" id="brgNav">
@@ -610,10 +625,10 @@ input.styled-input:focus{border-color:var(--cyan);}
       <div id="page-home">
         <div class="brg-breadcrumb">🏠 Startseite</div>
         <div class="brg-slider" id="brg-slider1">
-          <h2>🎓 Herzlich Willkommen am Gymnasium Hackerhausen!</h2>
-          <p>Wir begleiten über 824 Schülerinnen und Schüler auf ihrem Weg zur Matura.</p>
+          <h2>🎓 Willkommen in Hackerhausen Cyber Academy!</h2>
+          <p>Das sichere Virtual Network für eure Cybersecurity-Challenge.</p>
           <div class="brg-slider-btn" onclick="showBRGPage('aktuelles',null)">Mehr erfahren →</div>
-          <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:0.15;">🏫</div>
+          <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:0.15;">🖥️</div>
         </div>
         <div class="brg-news-grid" id="brg-news-grid">
           <div class="brg-news-card" id="nc1"><div class="brg-news-card-img">🏆</div><div class="brg-news-card-body"><div class="brg-news-card-tag">Auszeichnung</div><div class="brg-news-card-title">Gymnasium Hackerhausen gewinnt Landesmeisterschaft Mathematik 2026</div><div class="brg-news-card-date">15. März 2026</div></div></div>
@@ -647,20 +662,20 @@ input.styled-input:focus{border-color:var(--cyan);}
       </div>
       <div id="page-unterricht" style="display:none;">
         <div class="brg-breadcrumb">🏠 Startseite › Unterricht</div>
-        <div class="page-content"><h2>📚 Unterricht & Fächer</h2><p>Schwerpunkte und Lehrkörper des Gymnasium Hackerhausen.</p>
+        <div class="page-content"><h2>📚 Unterricht & Fächer</h2><p>Schwerpunkte und Lehrkörper der Hackerhausen Cyber Academy.</p>
         <h3>Fächerangebot</h3>
         <table>
-          <tr><th>Fach</th><th>Stunden pro Woche</th><th>Lehrer</th></tr>
-          <tr><td>Mathematik</td><td>4</td><td>Prof. Müller</td></tr>
-          <tr><td>Deutsch</td><td>3</td><td>Prof. Schmidt</td></tr>
-          <tr><td>Englisch</td><td>3</td><td>Prof. Johnson</td></tr>
-          <tr><td>Physik</td><td>2</td><td>Prof. Wagner</td></tr>
-          <tr><td>Chemie</td><td>2</td><td>Prof. Bauer</td></tr>
-          <tr><td>Informatik</td><td>2</td><td>Prof. Stührenberg</td></tr>
+          <tr><th>Fach</th><th>Stunden pro Woche</th><th>Mentor</th></tr>
+          <tr><td>Mathematik</td><td>4</td><td>Data Lead</td></tr>
+          <tr><td>Deutsch</td><td>3</td><td>Language Specialist</td></tr>
+          <tr><td>Englisch</td><td>3</td><td>Communications Coach</td></tr>
+          <tr><td>Physik</td><td>2</td><td>Systems Mentor</td></tr>
+          <tr><td>Chemie</td><td>2</td><td>Lab Specialist</td></tr>
+          <tr><td>Informatik</td><td>2</td><td>Security Instructor</td></tr>
         </table>
         <h3>Lehrkörper</h3>
-        <div class="teacher-card"><div class="teacher-avatar">MS</div><div class="teacher-info"><div class="teacher-name">Prof. Müller</div><div class="teacher-subject">Mathematik</div><div class="teacher-room">Raum 101</div></div></div>
-        <div class="teacher-card"><div class="teacher-avatar">PS</div><div class="teacher-info"><div class="teacher-name">Prof. Schmidt</div><div class="teacher-subject">Deutsch</div><div class="teacher-room">Raum 102</div></div></div></div>
+        <div class="teacher-card"><div class="teacher-avatar">DL</div><div class="teacher-info"><div class="teacher-name">Data Lead</div><div class="teacher-subject">Mathematik</div><div class="teacher-room">Cyber Lab 1</div></div></div>
+        <div class="teacher-card"><div class="teacher-avatar">CS</div><div class="teacher-info"><div class="teacher-name">Communications Coach</div><div class="teacher-subject">Deutsch</div><div class="teacher-room">Cyber Lab 2</div></div></div></div>
       </div>
       <div id="page-stundenplan" style="display:none;">
         <div class="brg-breadcrumb">🏠 Startseite › Stundenplan</div>
@@ -698,9 +713,9 @@ input.styled-input:focus{border-color:var(--cyan);}
       </div>
       <div id="page-kontakt" style="display:none;">
         <div class="brg-breadcrumb">🏠 Startseite › Kontakt</div>
-        <div class="page-content"><h2>📞 Kontakt & Anfahrt</h2><p>Gymnasium Hackerhausen · Hackerstraße 1 · 6020 Innsbruck · Tel: +43 512 123456</p>
+        <div class="page-content"><h2>📞 Kontakt & Anfahrt</h2><p>Hackerhausen Cyber Academy · Cyber Campus · Virtual Network</p>
         <h3>Anfahrt</h3>
-        <p>Mit öffentlichen Verkehrsmitteln: Buslinie 1 bis Haltestelle Hackerstraße.</p>
+        <p>Die Academy ist in einem sicheren Virtual Network erreichbar.</p>
         <p>Parkplatz vorhanden.</p>
         <h3>Öffnungszeiten</h3>
         <p>Mo-Fr: 7:30-17:00</p>
@@ -729,7 +744,7 @@ input.styled-input:focus{border-color:var(--cyan);}
         </div>
       </div>
       <div class="brg-widget">
-        <div class="brg-widget-header">🌤 Wetter Innsbruck</div>
+        <div class="brg-widget-header">🌤 Serverstatus</div>
         <div class="brg-widget-body">
           <div class="brg-weather">
             <div class="brg-weather-icon">⛅</div>
@@ -739,7 +754,7 @@ input.styled-input:focus{border-color:var(--cyan);}
         </div>
       </div>
       <div class="brg-widget">
-        <div class="brg-widget-header">📊 BRG in Zahlen</div>
+        <div class="brg-widget-header">📊 Cyber in Zahlen</div>
         <div class="brg-widget-body" style="font-size:11px;color:#556;line-height:2.2;">
           <div>👩‍🎓 Schüler/innen: <strong>824</strong></div>
           <div>👨‍🏫 Lehrkräfte: <strong>67</strong></div>
@@ -758,8 +773,8 @@ input.styled-input:focus{border-color:var(--cyan);}
     </div>
   </div>
   <div class="brg-footer">
-    <span>© 2026 Gymnasium Hackerhausen · Impressum · Datenschutz</span>
-    <span>Hackerstraße 1, 6020 Innsbruck · Tel: +43 512 584310</span>
+    <span>© 2026 Hackerhausen Cyber Academy · Impressum · Datenschutz</span>
+    <span>Cyber Campus · Virtual Network</span>
   </div>
 </div>
 
@@ -857,8 +872,8 @@ input.styled-input:focus{border-color:var(--cyan);}
 <div id="mainApp">
   <div class="topbar">
     <div class="topbar-logo">
-      <div class="topbar-emblem">BRG</div>
-      <div class="topbar-title">INNSBRUCK <span>CYBER</span></div>
+      <div class="topbar-emblem">HX</div>
+      <div class="topbar-title">HACKERHAUSEN <span>CYBER</span></div>
     </div>
     <div class="topbar-hackbadge">⚡ SYSTEM GEHACKT</div>
     <div id="adminBadge" class="admin-badge" style="display:none;">👑 ADMIN MODE</div>
@@ -880,7 +895,7 @@ input.styled-input:focus{border-color:var(--cyan);}
     <div class="dash-hero">
       <div class="dash-hero-badge"><span style="width:6px;height:6px;border-radius:50%;background:var(--red);animation:alertDot 1s infinite;display:inline-block;"></span> KRITISCHER ALARM</div>
       <h1>⚠ MISSION: SYSTEM RETTEN</h1>
-      <p>GHOST_X hat das Gymnasium Hackerhausen-Schulsystem vollständig kompromittiert. Noten, Stundenpläne und persönliche Daten von 824 Schüler/innen sind verschlüsselt. Meistert alle 6 Cybersecurity-Stationen!</p>
+      <p>GHOST_X hat das Hackerhausen Cyber-System vollständig kompromittiert. Daten, Stundenpläne und Zugänge sind verschlüsselt. Meistert alle 6 Cybersecurity-Stationen!</p>
     </div>
     <div class="dash-stats">
       <div class="stat-card"><div class="stat-label">Punkte gesamt</div><div class="stat-val" style="color:var(--green);" id="dashPts">0</div></div>
@@ -934,13 +949,10 @@ input.styled-input:focus{border-color:var(--cyan);}
               <div class="urkunde-logo-emblem">
                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="32" cy="32" r="30" fill="white" opacity="0.15" stroke="#c9a800" stroke-width="2"/>
-                  <text x="32" y="24" font-family="Arial" font-weight="900" font-size="11" fill="white" text-anchor="middle" letter-spacing="1">BRG</text>
-                  <line x1="14" y1="28" x2="50" y2="28" stroke="#c9a800" stroke-width="1.2"/>
-                  <text x="32" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#c9a800" text-anchor="middle" letter-spacing="2">INNS</text>
-                  <text x="32" y="48" font-family="Arial" font-weight="700" font-size="7" fill="rgba(255,255,255,0.8)" text-anchor="middle">BRUCK</text>
+                  <text x="32" y="36" font-family="Arial" font-weight="900" font-size="18" fill="#c9a800" text-anchor="middle">HX</text>
                 </svg>
               </div>
-              <div class="urkunde-school-title">Gymnasium Hackerhausen</div>
+              <div class="urkunde-school-title">Hackerhausen Cyber Academy</div>
             </div>
             <div class="urkunde-divider"><div class="urkunde-divider-line"></div><div class="urkunde-divider-star">✦</div><div class="urkunde-divider-line"></div></div>
             <div class="urkunde-ribbon-wrap">
@@ -956,24 +968,24 @@ input.styled-input:focus{border-color:var(--cyan);}
               <div class="urkunde-team" id="urkundeTeamName">Team ???</div>
             </div>
             <div class="urkunde-text">
-              Dieses Team hat die <strong>Gymnasium Hackerhausen Cybersecurity Challenge 2026</strong><br>
+              Dieses Team hat die <strong>Hackerhausen Cyber Academy Cybersecurity Challenge 2026</strong><br>
               erfolgreich gemeistert und alle 6 Sicherheitsstationen bezwungen.<br><br>
               Durch herausragenden Einsatz, digitale Kompetenz und Teamgeist ist es gelungen,<br>
-              den Hacker <em>GHOST_X</em> zu überführen und das Schulsystem des<br>
-              Gymnasiums Hackerhausen zurückzuerobern.<br><br>
+              den Hacker <em>GHOST_X</em> zu überführen und das virtuelle System von<br>
+              Hackerhausen Cyber Academy zurückzuerobern.<br><br>
               <div class="urkunde-pts-badge">⭐ Gesamtpunkte: <span id="urkundePunkte">—</span></div>
             </div>
             <div class="urkunde-divider"><div class="urkunde-divider-line"></div><div class="urkunde-divider-star">✦</div><div class="urkunde-divider-line"></div></div>
-            <div class="urkunde-datum" id="urkundeDatum">Innsbruck, 25. April 2026</div>
+            <div class="urkunde-datum" id="urkundeDatum">Virtual Network, 25. April 2026</div>
             <div class="urkunde-sigs">
               <div class="urkunde-sig-block">
-                <div class="urkunde-stamp">BRG<br>INNSBRUCK<br>2026<br>✦</div>
+                <div class="urkunde-stamp">HX<br>CYBER<br>2026<br>✦</div>
               </div>
               <div class="urkunde-sig-block">
                 <div class="urkunde-sig-name-cursive">Andreas Berger</div>
                 <div class="urkunde-sig-line"></div>
                 <div class="urkunde-sig-name">Prof. Andreas Berger</div>
-                <div class="urkunde-sig-title">Direktor, Gymnasium Hackerhausen</div>
+                <div class="urkunde-sig-title">Cyber Director, Hackerhausen Cyber Academy</div>
               </div>
               <div class="urkunde-sig-block">
                 <div class="urkunde-sig-name-cursive">Karim Stührenberg</div>
@@ -1007,7 +1019,7 @@ input.styled-input:focus{border-color:var(--cyan);}
 <div id="adminPortal">
   <div class="admin-topbar">
     <span style="font-size:22px;">🔐</span>
-    <h1>LEHRER-PORTAL // Gymnasium Hackerhausen</h1>
+    <h1>ADMIN PORTAL // Hackerhausen Cyber Academy</h1>
     <button onclick="closeAdmin()" style="margin-left:auto;padding:7px 16px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-family:var(--font-mono);font-size:11px;">✕ Schließen</button>
   </div>
   <div id="adminLoginArea" style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
@@ -1030,7 +1042,7 @@ input.styled-input:focus{border-color:var(--cyan);}
 const SB_URL='https://hecblwtvtjhkihtzaoys.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlY2Jsd3R2dGpoa2lodHphb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODgxMDQsImV4cCI6MjA5MjU2NDEwNH0.JTCwqptU6Cs86OYC-MyDk-s6VWyG5LMgj467ZuxXqmA';
 const CLAUDE_MODEL='claude-sonnet-4-20250514';
-const ADMIN_USER='admin', ADMIN_PW='BRG-Innsbruck-2026';
+const ADMIN_USER='admin', ADMIN_PW='Hackerhausen-2026';
 const H={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'};
 
 let currentTeam=null, stationProgress={}, totalPoints=0;
@@ -1040,7 +1052,7 @@ let stAttempts={};
 let currentPinStation=null, pinAttemptsLeft=3;
 
 const STATION_MAX_PTS={1:200,2:200,3:200,4:200,5:200,6:200};
-const UNLOCK_THRESHOLD=0.50;
+const UNLOCK_THRESHOLD=0.25;
 
 const STATION_PINS={1:null,2:null,3:null,4:'SAFE',5:'passwort',6:'J!7uL*9_'};
 const LOCK_DIGITS={1:'1',2:'8',3:'7'};
@@ -1071,7 +1083,7 @@ async function callClaude(messages, system=''){
 }
 
 // ══════════════════════════════════════════════════
-// BRG WEBSITE
+// HACKERHAUSEN PORTAL
 // ══════════════════════════════════════════════════
 function showBRGPage(page,navEl){
   document.querySelectorAll('[id^="page-"]').forEach(el=>el.style.display='none');
@@ -1087,7 +1099,7 @@ function brgSearch(q){if(!q)return;showBRGPage('aktuelles',null);}
 // ══════════════════════════════════════════════════
 window.onload=async()=>{
   document.getElementById('urkundeModal').style.display='none';
-  const saved=localStorage.getItem('brg_team_v3');
+  const saved=localStorage.getItem('hacker_team_v3');
   if(saved){
     try{
       const {name,password,admin}=JSON.parse(saved);
@@ -1102,68 +1114,31 @@ window.onload=async()=>{
         setInterval(loadScoreboard,30000);
         return;
       }
-    }catch(e){localStorage.removeItem('brg_team_v3');}
+    }catch(e){localStorage.removeItem('hacker_team_v3');}
   }
   startHackIntro();
 };
 
-const hackSequence=[
-  {t:1200,msg:'ACCESS GRANTED...',fn:'flicker'},
-  {t:2000,msg:'FIREWALL BYPASSED ✓',fn:'corrupt1'},
-  {t:2800,msg:'ROOT PRIVILEGES OBTAINED...',fn:'flicker'},
-  {t:3600,msg:'ENCRYPTING NOTEN-DB... ████ 100%',fn:'corrupt2'},
-  {t:4400,msg:'LOCKING STUNDENPLAN... ████ 100%',fn:'corrupt3'},
-  {t:5200,msg:'EXFILTRATING DATA...',fn:'corrupt4'},
-  {t:6100,msg:'INSTALLATION COMPLETE.',fn:'takeover'},
-  {t:7200,msg:'GHOST_X WAS HERE 👻',fn:'final'},
-];
-
 function startHackIntro(){
-  hackSequence.forEach(step=>{
+  const ol=document.getElementById('hackOverlayText');
+  const gl=document.getElementById('glitchLayer');
+  document.body.style.background='#000';
+  ol.style.color='#00ff41';
+  ol.style.fontSize='3rem';
+  ol.textContent='HACKERHAUSEN TERMINAL ONLINE';
+  ol.style.opacity='1';
+  gl.style.opacity='0.15';
+  setTimeout(()=>{
+    ol.textContent='WELCOME AGENT. DIE CYBERSECURITY-MISSION BEGINNT.';
     setTimeout(()=>{
-      const ol=document.getElementById('hackOverlayText');
-      const gl=document.getElementById('glitchLayer');
-      ol.textContent=step.msg;ol.style.opacity='1';
-      gl.style.opacity='0.7';
-      document.body.style.filter='hue-rotate('+Math.round(Math.random()*360)+'deg) brightness(1.4)';
-      setTimeout(()=>{document.body.style.filter='';gl.style.opacity='0';},150);
-      if(step.fn==='corrupt1'){const el=document.getElementById('nc4');if(el)el.style.opacity='0';}
-      if(step.fn==='corrupt2'){const el=document.getElementById('nc3');if(el)el.style.opacity='0';}
-      if(step.fn==='corrupt3'){const el=document.getElementById('nc2');if(el)el.style.opacity='0';}
-      if(step.fn==='corrupt4'){const el=document.getElementById('nc1');if(el)el.style.opacity='0';}
-      if(step.fn==='takeover'){
-        const hdr=document.querySelector('.brg-header');
-        if(hdr)hdr.style.background='linear-gradient(135deg,#1a0000,#330000,#1a0000)';
-        const slider=document.getElementById('brg-slider1');
-        if(slider){slider.style.background='linear-gradient(135deg,#1a0000,#330000)';slider.innerHTML='<h2 style="color:#ff0000;font-size:24px;">⚠ DIESE SEITE WURDE GEHACKT ⚠</h2><p style="color:#ff6666;">GYMNASIUM HACKERHAUSEN SCHULSYSTEM KOMPROMITTIERT — GHOST_X HAT DIE KONTROLLE</p>';}
-        document.getElementById('scanline').style.opacity='1';
-      }
-      if(step.fn==='final'){
-        // Restore the school website
-        const slider = document.getElementById('brg-slider1');
-        if(slider){
-          slider.style.background = 'linear-gradient(135deg,#003399,#1a5cbf)';
-          slider.innerHTML = '<h2>🎓 Herzlich Willkommen am Gymnasium Hackerhausen!</h2><p>Wir begleiten über 824 Schülerinnen und Schüler auf ihrem Weg zur Matura.</p><div class="brg-slider-btn" onclick="showBRGPage(\'aktuelles\',null)">Mehr erfahren →</div><div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:0.15;">🏫</div>';
-        }
-        const hdr = document.querySelector('.brg-header');
-        if(hdr) hdr.style.background = 'linear-gradient(135deg,#003399 0%,#1a5cbf 60%,#003399 100%)';
-        ['nc1','nc2','nc3','nc4'].forEach(id => {
-          const el = document.getElementById(id);
-          if(el) el.style.opacity = '1';
-        });
-        document.getElementById('scanline').style.opacity = '0';
-        ol.style.fontSize='3rem';ol.style.color='#ff0000';
-        setTimeout(()=>{
-          document.getElementById('hackIntro').style.display='none';
-          document.getElementById('hackOverlayText').style.opacity='0';
-          document.getElementById('introVideoScreen').style.display='flex';
-          document.getElementById('loginScreen').style.display='none';
-          document.getElementById('mainApp').style.display='none';
-          initIntroYT();
-        },1400);
-      }
-    },step.t);
-  });
+      ol.style.opacity='0';
+      document.getElementById('hackIntro').style.display='none';
+      document.getElementById('introVideoScreen').style.display='flex';
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('mainApp').style.display='none';
+      initIntroYT();
+    },2400);
+  },1800);
 }
 
 let introYTPlayer=null,outroYTPlayer=null;
@@ -1207,7 +1182,7 @@ function proceedToRegen(){
   doRegenAnimation();
 }
 
-function logOut(){localStorage.removeItem('brg_team_v3');location.reload();}
+function logOut(){localStorage.removeItem('hacker_team_v3');location.reload();}
 
 // ══════════════════════════════════════════════════
 // LOGIN
@@ -1251,7 +1226,7 @@ async function doLogin(){
     }
     if(!team){showErr(err,'Datenbankfehler!');btn.disabled=false;btn.textContent='MISSION STARTEN';return;}
     currentTeam=team;isAdmin=(name==='admin'&&pw===ADMIN_PW);
-    localStorage.setItem('brg_team_v3',JSON.stringify({name:team.team_name,password:pw,admin:isAdmin}));
+    localStorage.setItem('hacker_team_v3',JSON.stringify({name:team.team_name,password:pw,admin:isAdmin}));
     await loadProgress();
     err.style.display='none';
     document.getElementById('loginScreen').style.display='none';
@@ -1323,7 +1298,7 @@ function renderStations(){
         <div class="station-num">STATION ${String(s.id).padStart(2,'0')} · GESPERRT</div>
         <div class="station-icon-wrap" style="background:${s.bg};">🔒</div>
         <div class="station-name">${s.name}</div>
-        <div class="station-desc">Schließt zuerst Station ${s.id-1} mit mindestens 50% (100 Punkte) ab.</div>
+        <div class="station-desc">Schließt zuerst Station ${s.id-1} mit mindestens 25% (50 Punkte) ab.</div>
         <div class="station-foot"><div class="station-pts-txt">⭐ 0 / ${s.maxPts} Pts</div><div class="station-status-badge s-locked">GESPERRT</div></div>
         <div class="station-progress-bar"><div class="station-progress-fill" style="width:0%;background:${s.color};"></div></div>
       </div>`;
@@ -1758,9 +1733,9 @@ const s1ChoiceVariants=[
   [{pw:'fussball1',t:'bad'},{pw:'Herbst2022#',t:'bad'},{pw:'Qz@9nP7vXm2k!',t:'good'},{pw:'qwertz123',t:'bad'}],
 ];
 const s1RankVariants=[
-  {items:['123456','abc','Hallo','Sommer2024!','IchLiebeBRG!42x'],correct:['123456','abc','Hallo','Sommer2024!','IchLiebeBRG!42x']},
+  {items:['123456','abc','Hallo','Sommer2024!','IchLiebeHX!42x'],correct:['123456','abc','Hallo','Sommer2024!','IchLiebeHX!42x']},
   {items:['99999','cat','Test','Winter2023!','MeinPW!Sicher42x'],correct:['99999','cat','Test','Winter2023!','MeinPW!Sicher42x']},
-  {items:['111111','dog','Pass','Herbst2022','SchuleIBKtop42z'],correct:['111111','dog','Pass','Herbst2022','SchuleIBKtop42z']},
+  {items:['111111','dog','Pass','Herbst2022','CyberNetzTop42z'],correct:['111111','dog','Pass','Herbst2022','CyberNetzTop42z']},
 ];
 const s1QuizVariants=[
   [
@@ -1778,7 +1753,7 @@ const s1QuizVariants=[
     {q:'Biometrische Daten können Passwörter vollständig ersetzen.',a:false,expl:'Falsch! Biometrie hat eigene Schwächen — sie gilt als zusätzlicher Faktor, nicht Ersatz.'},
   ],
   [
-    {q:'Eine Passphrase ("IchLiebeBRGInnsbruck!") ist sicherer als "a8$K".',a:true,expl:'Richtig! Länge schlägt kurze Komplexität — eine Passphrase hat mehr Kombinationen.'},
+    {q:'Eine Passphrase ("IchLiebeHX!") ist sicherer als "a8$K".',a:true,expl:'Richtig! Länge schlägt kurze Komplexität — eine Passphrase hat mehr Kombinationen.'},
     {q:'Wenn ein Dienst gehackt wird, muss man NUR dort das Passwort ändern.',a:false,expl:'Falsch! Wenn du dasselbe PW woanders nutzt, müssen ALLE geändert werden!'},
     {q:'Ein Passwort-Manager ist eine praktische Lösung für viele sichere Passwörter.',a:true,expl:'Richtig! Du musst dir nur ein Master-Passwort merken.'},
     {q:'Passwörter mit Namen von Haustieren oder Familienmitgliedern sind sicher.',a:false,expl:'Falsch! Social Engineering — Hacker recherchieren genau das in sozialen Medien.'},
@@ -2060,15 +2035,15 @@ function s1QuizAnswer(i,ans){
 let s2Phase=1, s2SelectedSafe=new Set(), s2MarkedEvil=new Set(), s2QuizAnswers={}, s2SelWifi=null;
 
 const ALL_WIFI_NETS=[
-  {name:'BRG_Innsbruck_Schulnetz',sec:'WPA3',bars:4,type:'safe',id:'n1'},
-  {name:'BRG_Innsbruck_Schulnetz',sec:'WEP (veraltet!)',bars:5,type:'evil',id:'n2'},
-  {name:'Stadtcafe_Innsbruck_Free',sec:'Offen (kein Passwort)',bars:3,type:'open',id:'n3'},
+  {name:'HX_SecureNet',sec:'WPA3',bars:4,type:'safe',id:'n1'},
+  {name:'HX_SecureNet',sec:'WEP (veraltet!)',bars:5,type:'evil',id:'n2'},
+  {name:'CityCafe_FreeNet',sec:'Offen (kein Passwort)',bars:3,type:'open',id:'n3'},
   {name:'A1_Hotspot_IBK',sec:'WPA2',bars:3,type:'safe',id:'n4'},
   {name:'McDonald_s_Free',sec:'Offen',bars:4,type:'open',id:'n5'},
   {name:'A1_Hotspot_IBK',sec:'WPA2-Personal (schwach)',bars:4,type:'evil',id:'n6'},
-  {name:'BRGIBK_Lehrer',sec:'WPA3-Enterprise',bars:3,type:'safe',id:'n7'},
+  {name:'Hackerhausen_Admin',sec:'WPA3-Enterprise',bars:3,type:'safe',id:'n7'},
   {name:'Magenta_Public',sec:'Offen',bars:2,type:'open',id:'n8'},
-  {name:'BRGIBK_Lehrer',sec:'WEP',bars:5,type:'evil',id:'n9'},
+  {name:'Hackerhausen_Admin',sec:'WEP',bars:5,type:'evil',id:'n9'},
   {name:'T-Mobile_Gast',sec:'WPA2',bars:2,type:'safe',id:'n10'},
   {name:'Bahnhof_Free_WiFi',sec:'Offen',bars:3,type:'open',id:'n11'},
   {name:'T-Mobile_Gast',sec:'WEP (veraltet)',bars:5,type:'evil',id:'n12'},
@@ -2094,8 +2069,8 @@ function buildS2(){
   const quiz=s2QuizVariants[Math.min(v,s2QuizVariants.length-1)];
   const theory=buildTheoryAccordion('s2theory','📡','Theorie: WLAN-Sicherheit & Evil-Twin','Klicke um zu erfahren, wie WLAN-Angriffe funktionieren',[
     {icon:'👻',title:'Was ist ein Evil-Twin-Angriff?',color:'var(--red)',
-     text:'Ein Hacker erstellt ein gefälschtes WLAN mit demselben Namen wie ein echtes Netz (z.B. "BRG_Schulnetz"). Dein Handy verbindet sich automatisch — und der Hacker sieht ALLES: Passwörter, Nachrichten, Bankdaten. Du merkst es nicht einmal.',
-     example:'🎯 Echtes Netz: "BRG_Schulnetz" WPA3 | Fake: "BRG_Schulnetz" WEP — gleicher Name, anderes Protokoll!'},
+     text:'Ein Hacker erstellt ein gefälschtes WLAN mit demselben Namen wie ein echtes Netz (z.B. "HX_SecureNet"). Dein Gerät verbindet sich automatisch — und der Angreifer sieht ALLES: Passwörter, Nachrichten, Bankdaten. Du merkst es nicht einmal.',
+     example:'🎯 Echtes Netz: "HX_SecureNet" WPA3 | Fake: "HX_SecureNet" WEP — gleicher Name, anderes Protokoll!'},
     {icon:'🔒',title:'WPA3 vs WPA2 vs WEP — was ist der Unterschied?',color:'var(--cyan)',
      text:'<strong>WEP</strong> (1997) = in Sekunden geknackt, total veraltet. <strong>WPA2</strong> (2004) = noch ok, aber angreifbar. <strong>WPA3</strong> (2018) = aktuell sicher. Offene Netze ohne Passwort = alles sichtbar für jeden im gleichen Netz!',
      example:'❌ WEP: Knackbar in unter 1 Minute | ⚠ WPA2: Sicher wenn starkes Passwort | ✅ WPA3: Aktueller Standard'},
@@ -2151,7 +2126,7 @@ function buildS2(){
         <div class="chat-messages" id="s2chatMsgs">
           <div class="chat-msg chat-them">
             <div class="chat-sender">GHOST_X_Jr.</div>
-            Hey! Verbinde dich mit "BRG_Schulnetz" WEP — das ist dasselbe Netz wie das echte, nur schneller! 😈
+            Hey! Verbinde dich mit "HX_SecureNet" WEP — das ist dasselbe Netz wie das echte, nur schneller! 😈
             <div class="chat-time">jetzt</div>
           </div>
         </div>
@@ -2169,7 +2144,7 @@ function buildS2(){
     <div id="s2urlArea">${[
       {url:'https://www.sparkasse.at/login',safe:true},{url:'http://sparkasse-login.ru/konto',safe:false},
       {url:'https://orf.at/nachrichten',safe:true},{url:'http://orf-news.tk/breaking',safe:false},
-      {url:'https://www.brg-innsbruck.at',safe:true},{url:'http://brg-innsbr0ck-login.xyz',safe:false},
+      {url:'https://www.hackerhausen-cyber.at',safe:true},{url:'http://hackerhausen-login.xyz',safe:false},
       {url:'https://mail.google.com',safe:true},{url:'http://google-mail-verify.net/auth',safe:false},
     ].map((u,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;" id="s2url${i}">
       <div style="flex:1;font-family:var(--font-mono);font-size:12px;color:var(--cyan);background:var(--bg2);padding:8px 12px;border-radius:6px;border:1px solid var(--border);word-break:break-all;">${u.url}</div>
@@ -2309,9 +2284,9 @@ const PHISHING_EMAILS=[
    body:'Sehr geehrte Erziehungsberechtigte,<br><br>wir möchten Sie über die Schulbuchaktion 2026 informieren. Alle relevanten Informationen und Formulare finden Sie auf der offiziellen Website.<br><br>Bei Rückfragen wenden Sie sich bitte an Ihre Schule.',
    link:'https://bm-bildung.gv.at/schulbuch',type:'real',
    explain:'Legitim: Offizielle .gv.at-Domain, kein Druck, kein Dateneingabelink.'},
-  {id:'e5',from:'gewinnspiel@gymnasium-hackerhausen-prize.com',fromLabel:'Gymnasium Hackerhausen Gewinnspiel',subj:'🎉 Sie haben gewonnen! Laptop & 500€ Gutschein',
+  {id:'e5',from:'gewinnspiel@hackerhausen-prize.com',fromLabel:'Hackerhausen Gewinnspiel',subj:'🎉 Sie haben gewonnen! Laptop & 500€ Gutschein',
    body:'Herzlichen Glückwunsch!<br><br>Sie wurden als <strong>heutiger Gewinner</strong> ausgewählt! Als Dankeschön für Ihre Treue erhalten Sie einen Laptop und einen 500€-Gutschein.<br><br>Bitte geben Sie innerhalb von 24 Stunden Ihre persönlichen Daten ein, um den Preis zu beanspruchen:',
-   link:'http://gymnasium-hackerhausen-prize.com/gewinn',type:'phishing',
+   link:'http://hackerhausen-prize.com/gewinn',type:'phishing',
    flags:['Gefälschte Gymnasium-Domain (keine offizielle Schul-Domain)','Unrealistischer Gewinn','Zeitdruck (24h)','HTTP statt HTTPS','Persönliche Daten gefordert'],
    explain:'Schulen verschicken keine Gewinnspiel-Emails mit Laptops. Die Domain ist gefälscht.'},
 ];
@@ -2326,7 +2301,7 @@ const s3UrlPairData=[
   {real:'https://www.sparkasse.at/login',fake:'http://sparkasse-login-konto.ru/auth'},
   {real:'https://www.amazon.de/orders',fake:'http://amazon-auftrag-verify.net/confirm'},
   {real:'https://mail.google.com',fake:'http://google-mail-secure.tk/login'},
-  {real:'https://www.brg-innsbruck.at',fake:'http://brg-innsbr0ck.xyz/login'},
+  {real:'https://www.hackerhausen-cyber.at',fake:'http://hackerhausen-login.xyz/login'},
 ];
 
 function buildS3(){
@@ -2388,7 +2363,7 @@ function buildS3(){
   </div>
   <div class="task-block">
     <div class="task-header"><div><div class="task-title">🕵️ AUFGABE 3: Phisher verhören</div>
-    <div class="task-desc">Ein Phishing-Bot steckt hinter den Angriffen auf die BRG! Verhöre ihn — stellt ihm die richtigen Fragen und entlarvt seine Methoden! 3 Erkenntnisse = Punkte.</div></div><div class="task-pts-tag">+60 Pts</div></div>
+    <div class="task-desc">Ein Phishing-Bot steckt hinter den Angriffen auf das Hackerhausen-System! Verhöre ihn — stellt ihm die richtigen Fragen und entlarvt seine Methoden! 3 Erkenntnisse = Punkte.</div></div><div class="task-pts-tag">+60 Pts</div></div>
     <div class="chat-sim">
       <div class="chat-topbar">
         <div class="chat-av" style="background:#f59e0b;">🎣</div>
@@ -2621,7 +2596,7 @@ function buildS4(){
     <div class="task-desc">Analysiere ${files.length} Dateien. Markiere alle Malware-Dateien (🔴) und alle sicheren Dateien (✅). Jede korrekte Bewertung: +5 Punkte.</div></div><div class="task-pts-tag">${files.length}×5 Pts</div></div>
     <div class="file-explorer">
       <div class="fe-topbar">
-        <span>📁</span><div class="fe-path">C:\Benutzer\BRG_Schueler\Downloads</div>
+        <span>📁</span><div class="fe-path">C:\Benutzer\Hackerhausen_User\Downloads</div>
         <span>${files.length} Objekte</span>
       </div>
       <div class="fe-layout">
@@ -2723,7 +2698,7 @@ let s5CurrentScenario=0, s5ScenarioDone={}, s5FlagSel={}, s5MatchLeft=null, s5Ma
 const SE_SCENARIOS=[
   {id:'s1',icon:'📞',name:'Anruf vom IT-Support',
    chat:[
-     {who:'them',msg:'Hallo! Ich bin von der IT-Abteilung der BRG. Wir haben ein kritisches Sicherheitsproblem mit Ihrem Account entdeckt. Ich brauche sofort Ihr Passwort zur Verifizierung!'},
+     {who:'them',msg:'Hallo! Ich bin von der Hackerhausen IT-Abteilung. Wir haben ein kritisches Sicherheitsproblem mit Ihrem Account entdeckt. Ich brauche sofort Ihr Passwort zur Verifizierung!'},
      {who:'them',msg:'Das ist sehr dringend — in 10 Minuten werden alle Konten gesperrt, wenn wir nicht handeln!'},
    ],
    realAction:'Kein IT-Support braucht jemals dein Passwort! Auflegen, direkt bei der echten IT melden.',
@@ -3256,7 +3231,7 @@ function doAdminLogin(){
     isAdmin=true;
     currentTeam=currentTeam||{id:'admin',team_name:'ADMIN',password_strength:'Sehr stark'};
     stationProgress={};stPts={1:0,2:0,3:0,4:0,5:0,6:0};totalPoints=0;
-    localStorage.setItem('brg_team_v3',JSON.stringify({name:'ADMIN',password:'BRG-Innsbruck-2026',admin:true}));
+    localStorage.setItem('hacker_team_v3',JSON.stringify({name:'ADMIN',password:'Hackerhausen-2026',admin:true}));
     document.getElementById('adminPortal').style.display='none';
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('mainApp').style.display='flex';
