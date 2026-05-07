@@ -558,6 +558,8 @@ input.styled-input:focus{border-color:var(--cyan);}
   .match-container{grid-template-columns:1fr;}
   .urkunde-sigs{flex-direction:column;align-items:center;}
 }
+
+#mainApp,#pinScreen,#loginScreen,#hackIntro,#successScreen,#introVideoScreen,#outroVideoScreen{display:none;}
 </style>
 <script src="https://www.youtube.com/iframe_api"></script>
 </head>
@@ -1154,7 +1156,10 @@ function startHackIntro(){
         setTimeout(()=>{
           document.getElementById('hackIntro').style.display='none';
           document.getElementById('hackOverlayText').style.opacity='0';
-          document.getElementById('mainApp').style.display='flex';
+          document.getElementById('introVideoScreen').style.display='flex';
+          document.getElementById('loginScreen').style.display='none';
+          document.getElementById('mainApp').style.display='none';
+          initIntroYT();
         },1400);
       }
     },step.t);
@@ -1170,6 +1175,10 @@ function initIntroYT(){
   introYTPlayer=new window.YT.Player('introYTFrame',{
     events:{onStateChange(e){if(e.data===0){document.getElementById('introVidLock').style.display='none';document.getElementById('introSkipBtn').style.display='inline-block';}}}
   });
+  setTimeout(()=>{
+    const btn=document.getElementById('introSkipBtn');
+    if(btn&&btn.style.display==='none'){btn.style.display='inline-block';btn.textContent='WEITER →';}
+  },12000);
 }
 
 function proceedFromIntro(){
