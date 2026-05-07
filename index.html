@@ -26,8 +26,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 
 /* ── FAKE SCHOOL WEBSITE pls work n halewkfjhweokfjwefow ::-webkit-scrollbar-track ── */
 #hackIntro{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;overflow:hidden;color:#0f0;}
-#hackIntro > :not(#hackIntroOverlay){display:none;}
-#hackIntroOverlay{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;z-index:10000;}
+#hackIntroOverlay{position:absolute;inset:0;background:#000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;z-index:10000;}
 #hackIntroOverlay::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(0,255,65,0.12),transparent 28%),radial-gradient(circle at bottom right,rgba(255,45,85,0.1),transparent 32%);pointer-events:none;}
 #hackIntroOverlay .intro-glow{position:relative;z-index:1;max-width:760px;text-align:center;}
 #hackIntroOverlay .intro-heading{font-family:var(--font-mono);font-size:18px;color:#0f0;text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;}
@@ -1120,25 +1119,68 @@ window.onload=async()=>{
 };
 
 function startHackIntro(){
+  const introContainer=document.getElementById('hackIntro');
+  const overlay=document.getElementById('hackIntroOverlay');
   const ol=document.getElementById('hackOverlayText');
   const gl=document.getElementById('glitchLayer');
-  document.body.style.background='#000';
+  introContainer.style.display='flex';
+  document.body.style.background='#07131c';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='none';
+  showBRGPage('home',document.querySelector('.brg-nav-item'));
+  overlay.style.display='none';
+  ol.style.opacity='0';
+  gl.style.opacity='0';
   ol.style.color='#00ff41';
   ol.style.fontSize='3rem';
-  ol.textContent='HACKERHAUSEN TERMINAL ONLINE';
-  ol.style.opacity='1';
-  gl.style.opacity='0.15';
+  ol.style.textShadow='0 0 25px #00ff41';
+  ol.style.textAlign='center';
+  ol.textContent='';
+
   setTimeout(()=>{
-    ol.textContent='WELCOME AGENT. DIE CYBERSECURITY-MISSION BEGINNT.';
-    setTimeout(()=>{
-      ol.style.opacity='0';
-      document.getElementById('hackIntro').style.display='none';
-      document.getElementById('introVideoScreen').style.display='flex';
-      document.getElementById('loginScreen').style.display='none';
-      document.getElementById('mainApp').style.display='none';
-      initIntroYT();
-    },2400);
-  },1800);
+    overlay.style.display='flex';
+    ol.textContent='HACKERHAUSEN PORTAL ONLINE';
+    ol.style.opacity='1';
+    gl.style.opacity='0.12';
+  },1200);
+
+  setTimeout(()=>{
+    ol.textContent='UNAUTHORIZED ACCESS ERKANNT';
+  },3400);
+
+  setTimeout(()=>{
+    ol.textContent='GHOST_X BEGINNT DEN ANGRIFF';
+    const targets=[
+      document.querySelector('.brg-header-right'),
+      document.getElementById('brgNav'),
+      document.getElementById('brg-slider1'),
+      document.getElementById('brg-news-grid'),
+      document.querySelector('.brg-sidebar'),
+      document.querySelector('.brg-footer')
+    ];
+    targets.forEach((el,i)=>{
+      if(!el)return;
+      el.style.transition='opacity 0.8s ease, transform 0.8s ease';
+      setTimeout(()=>{
+        el.style.opacity='0';
+        el.style.transform='translateX(20px)';
+        setTimeout(()=>{el.style.display='none';},850);
+      }, i*700);
+    });
+  },5600);
+
+  setTimeout(()=>{
+    ol.textContent='SYSTEM KORRUMPIERT. ANMELDUNG ERFORDERLICH.';
+  },8000);
+
+  setTimeout(()=>{
+    ol.style.opacity='0';
+    gl.style.opacity='0';
+    overlay.style.display='none';
+    introContainer.style.display='none';
+    document.getElementById('introVideoScreen').style.display='flex';
+    initIntroYT();
+  },9800);
 }
 
 let introYTPlayer=null,outroYTPlayer=null;
